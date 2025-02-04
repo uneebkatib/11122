@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -46,10 +46,10 @@ export const Header = () => {
     <header className="w-full border-b bg-background">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center space-x-2">
             <Mail className="h-6 w-6 text-primary" />
             <span className="text-xl font-semibold">TempMail</span>
-          </div>
+          </Link>
           
           <nav className="flex items-center space-x-4">
             {session ? (
@@ -71,7 +71,7 @@ export const Header = () => {
                       Admin Panel
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => navigate('#pricing')}>
+                  <DropdownMenuItem onClick={() => navigate('/#pricing')}>
                     Upgrade Plan
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
