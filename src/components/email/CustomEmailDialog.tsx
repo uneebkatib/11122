@@ -27,19 +27,31 @@ export const CustomEmailDialog = ({ domains, onCreateEmail }: CustomEmailDialogP
   const [selectedDomain, setSelectedDomain] = useState("");
   const [open, setOpen] = useState(false);
 
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
+  const { data: session } = useQuery({
+    queryKey: ['session'],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    }
+  });
+
+  const { data: profile, isError: profileError } = useQuery({
+    queryKey: ['profile', session?.user?.id],
+    enabled: !!session?.user?.id,
+    queryFn: async () => {
+      if (!session?.user?.id) return null;
       
       const { data, error } = await supabase
         .from('profiles')
         .select('subscription_tier')
-        .eq('id', user.id)
-        .single();
+        .eq('id', session.user.id)
+        .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
+      
       return data;
     }
   });
