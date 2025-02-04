@@ -5,6 +5,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
@@ -66,15 +67,20 @@ export const Header = () => {
                   <DropdownMenuItem className="text-sm">
                     Plan: {profile?.subscription_tier || 'free'}
                   </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   {profile?.is_admin && (
-                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <DropdownMenuItem onSelect={() => navigate('/admin')}>
                       Admin Panel
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={() => navigate('/#pricing')}>
+                  <DropdownMenuItem onSelect={() => navigate('/settings')}>
+                    Settings
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onSelect={() => navigate('/#pricing')}>
                     Upgrade Plan
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onSelect={handleLogout}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
