@@ -34,7 +34,11 @@ export const PricingPlans = () => {
 
   const handleSubscribe = async (planId: string, price: number) => {
     if (!session) {
-      navigate('/login');
+      toast({
+        title: "Login Required",
+        description: "Please login to subscribe to this plan.",
+      });
+      navigate('/login', { state: { redirectTo: '/#pricing' } });
       return;
     }
 
@@ -63,7 +67,6 @@ export const PricingPlans = () => {
       });
     } else {
       // Navigate to payment gateway for paid plans
-      // This is where you would integrate with your payment provider
       toast({
         title: "Coming Soon",
         description: "Payment gateway integration is coming soon!",

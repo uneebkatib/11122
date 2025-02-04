@@ -18,19 +18,22 @@ import {
 } from "@/components/ui/select";
 import { Plus } from "lucide-react";
 import { CustomEmailDialogProps } from "@/types/email";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export const CustomEmailDialog = ({ domains, onCreateEmail }: CustomEmailDialogProps) => {
   const [customUsername, setCustomUsername] = useState("");
   const [selectedDomain, setSelectedDomain] = useState("");
+  const [open, setOpen] = useState(false);
 
   const handleCreateEmail = () => {
     onCreateEmail(customUsername, selectedDomain);
     setCustomUsername("");
     setSelectedDomain("");
+    setOpen(false);
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button 
           variant="ghost" 
@@ -40,7 +43,7 @@ export const CustomEmailDialog = ({ domains, onCreateEmail }: CustomEmailDialogP
           <Plus className="h-5 w-5 text-gray-500" />
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Create Custom Email</DialogTitle>
         </DialogHeader>
@@ -66,6 +69,19 @@ export const CustomEmailDialog = ({ domains, onCreateEmail }: CustomEmailDialogP
               </SelectContent>
             </Select>
           </div>
+
+          <Alert>
+            <AlertTitle>Domain Verification Instructions</AlertTitle>
+            <AlertDescription className="mt-2">
+              <p className="mb-2">To verify your domain, add these DNS records:</p>
+              <ol className="list-decimal pl-4 space-y-2">
+                <li>Add an MX record pointing to our mail server</li>
+                <li>Add a TXT record for domain verification</li>
+                <li>Wait for DNS propagation (up to 24-48 hours)</li>
+              </ol>
+            </AlertDescription>
+          </Alert>
+
           <Button className="w-full" onClick={handleCreateEmail}>
             Create Email
           </Button>

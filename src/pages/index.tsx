@@ -8,7 +8,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-white">
       <Header />
-      <EmailBox />
+      <EmailBox allowAnonymous={true} />
       <Features />
       <PricingPlans />
     </div>

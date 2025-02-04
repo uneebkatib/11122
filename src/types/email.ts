@@ -10,6 +10,7 @@ export interface Email {
 
 export interface EmailBoxProps {
   duration?: number;
+  allowAnonymous?: boolean;
 }
 
 export interface CustomEmailDialogProps {

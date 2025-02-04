@@ -49,7 +49,7 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Mail className="h-6 w-6 text-primary" />
-            <span className="text-xl font-semibold">TempMail</span>
+            <span className="text-xl font-semibold">JempMail</span>
           </Link>
           
           <nav className="flex items-center space-x-4">
@@ -76,7 +76,7 @@ export const Header = () => {
                   <DropdownMenuItem onSelect={() => navigate('/settings')}>
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate('/#pricing')}>
+                  <DropdownMenuItem onSelect={() => navigate('/login')}>
                     Upgrade Plan
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -97,4 +97,3 @@ export const Header = () => {
     </header>
   );
 };
-
