@@ -23,7 +23,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .eq('is_active', true);
       
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 
@@ -41,7 +41,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .eq('is_verified', true);
       
       if (error) throw error;
-      return data;
+      return data || [];
     }
   });
 
@@ -64,10 +64,10 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   });
 
   useEffect(() => {
-    if (adminDomains?.length) {
+    if (adminDomains?.length && !email) {
       generateRandomEmail();
     }
-  }, [adminDomains]);
+  }, [adminDomains, email]);
 
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
@@ -79,7 +79,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
       return;
     }
     
-    const random = Math.random().toString(36).substring(7);
+    const random = Math.random().toString(36).substring(2, 10); // Generate longer random string
     const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
     const newEmail = `${random}@${randomDomain.domain}`;
     setEmail(newEmail);
