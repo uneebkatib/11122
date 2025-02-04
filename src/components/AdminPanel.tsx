@@ -1,4 +1,4 @@
-```typescript
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DomainManagement } from "./admin/DomainManagement";
@@ -71,4 +71,3 @@ export const AdminPanel = () => {
     </div>
   );
 };
-```

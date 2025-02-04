@@ -35,7 +35,7 @@ const Admin = () => {
     };
 
     checkAdmin();
-  }, [navigate]);
+  }, [navigate, toast]);
 
   return (
     <div className="min-h-screen bg-gray-50">
