@@ -11,9 +11,13 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 
-export const EmailBox = () => {
+interface EmailBoxProps {
+  duration?: number;
+}
+
+export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [email, setEmail] = useState("");
-  const [timeLeft, setTimeLeft] = useState(600); // 10 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(duration);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -34,7 +38,7 @@ export const EmailBox = () => {
   const generateEmail = () => {
     const random = Math.random().toString(36).substring(7);
     setEmail(`${random}@tempmail.dev`);
-    setTimeLeft(600); // Reset timer when generating new email
+    setTimeLeft(duration);
   };
 
   const copyEmail = () => {
