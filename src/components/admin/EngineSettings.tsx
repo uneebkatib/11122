@@ -43,7 +43,10 @@ export const EngineSettings = () => {
         .limit(1)
         .maybeSingle();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching mail server config:', error);
+        throw error;
+      }
       return data as MailServerConfig | null;
     }
   });
@@ -66,7 +69,10 @@ export const EngineSettings = () => {
         .select()
         .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating mail server config:', error);
+        throw error;
+      }
       return data;
     },
     onSuccess: () => {
