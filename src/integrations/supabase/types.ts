@@ -263,6 +263,53 @@ export type Database = {
         }
         Relationships: []
       }
+      payment_history: {
+        Row: {
+          amount: number
+          created_at: string | null
+          crypto_transaction_id: string | null
+          currency: string
+          id: string
+          payment_intent_id: string | null
+          payment_method: string
+          status: string
+          subscription_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          crypto_transaction_id?: string | null
+          currency: string
+          id?: string
+          payment_intent_id?: string | null
+          payment_method: string
+          status: string
+          subscription_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          crypto_transaction_id?: string | null
+          currency?: string
+          id?: string
+          payment_intent_id?: string | null
+          payment_method?: string
+          status?: string
+          subscription_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_history_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pricing_plans: {
         Row: {
           created_at: string
@@ -323,9 +370,12 @@ export type Database = {
       user_subscriptions: {
         Row: {
           created_at: string
+          crypto_payment_address: string | null
+          currency: string | null
           current_period_end: string
           current_period_start: string
           id: string
+          payment_method: string | null
           plan_id: string
           status: string
           stripe_customer_id: string | null
@@ -334,9 +384,12 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          crypto_payment_address?: string | null
+          currency?: string | null
           current_period_end: string
           current_period_start: string
           id?: string
+          payment_method?: string | null
           plan_id: string
           status: string
           stripe_customer_id?: string | null
@@ -345,9 +398,12 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          crypto_payment_address?: string | null
+          currency?: string | null
           current_period_end?: string
           current_period_start?: string
           id?: string
+          payment_method?: string | null
           plan_id?: string
           status?: string
           stripe_customer_id?: string | null
