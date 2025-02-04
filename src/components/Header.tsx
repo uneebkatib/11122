@@ -1,4 +1,5 @@
-import { Mail, Menu } from "lucide-react";
+
+import { Mail, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -6,10 +7,43 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 export const Header = () => {
+  const navigate = useNavigate();
+
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    }
+  });
+
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    enabled: !!session?.user,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', session!.user.id)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/');
+  };
+
   return (
-    <header className="w-full border-b bg-white">
+    <header className="w-full border-b bg-background">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -17,27 +51,38 @@ export const Header = () => {
             <span className="text-xl font-semibold">TempMail</span>
           </div>
           
-          <nav className="hidden md:flex items-center space-x-6">
-            <a href="#features" className="text-sm text-gray-600 hover:text-primary transition-colors">Features</a>
-            <a href="#faq" className="text-sm text-gray-600 hover:text-primary transition-colors">FAQ</a>
-            <Button variant="outline">Get Started</Button>
-          </nav>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild className="md:hidden">
-              <Button variant="ghost" size="icon">
-                <Menu className="h-5 w-5" />
+          <nav className="flex items-center space-x-4">
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <User className="h-5 w-5" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-sm">
+                    {session.user.email}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-sm">
+                    Plan: {profile?.subscription_tier || 'free'}
+                  </DropdownMenuItem>
+                  {profile?.is_admin && (
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => navigate('/login')} variant="outline">
+                <LogIn className="h-4 w-4 mr-2" />
+                Sign In
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem>
-                <a href="#features">Features</a>
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <a href="#faq">FAQ</a>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            )}
+          </nav>
         </div>
       </div>
     </header>
