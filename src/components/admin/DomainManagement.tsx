@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,7 +43,21 @@ export const DomainManagement = () => {
       return;
     }
 
-    setGlobalDomains(data);
+    // Map the domains data to match CustomDomain type
+    const mappedDomains: CustomDomain[] = data.map(d => ({
+      id: d.id,
+      domain: d.domain,
+      verification_token: d.verification_token || '',
+      verification_status: d.verification_status as 'pending' | 'verified' | 'failed',
+      verified_at: d.verified_at,
+      mx_record: d.mx_record,
+      last_verification_attempt: d.last_verification_attempt,
+      is_verified: d.verification_status === 'verified',
+      is_active: d.is_active,
+      is_global: d.is_global
+    }));
+
+    setGlobalDomains(mappedDomains);
   };
 
   const handleAddDomain = async () => {

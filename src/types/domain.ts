@@ -3,9 +3,11 @@ export interface CustomDomain {
   id: string;
   domain: string;
   verification_token: string;
-  is_verified: boolean;
+  verification_status: 'pending' | 'verified' | 'failed';
   verified_at: string | null;
   mx_record: string | null;
-  verification_status: 'pending' | 'verified' | 'failed';
   last_verification_attempt: string | null;
+  is_verified?: boolean;
+  is_active?: boolean;
+  is_global?: boolean;
 }

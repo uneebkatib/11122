@@ -1,4 +1,4 @@
-
+```typescript
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,7 +15,7 @@ export const CustomDomainManagement = () => {
   const [customDomains, setCustomDomains] = useState<CustomDomain[]>([]);
   const { toast } = useToast();
 
-  const { data: { user } } = useQuery({
+  const { data: sessionData } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
       const { data } = await supabase.auth.getSession();
@@ -24,15 +24,15 @@ export const CustomDomainManagement = () => {
   });
 
   const { data: profile } = useQuery({
-    queryKey: ['profile', user?.id],
-    enabled: !!user?.id,
+    queryKey: ['profile', sessionData?.session?.user?.id],
+    enabled: !!sessionData?.session?.user?.id,
     queryFn: async () => {
-      if (!user?.id) return null;
+      if (!sessionData?.session?.user?.id) return null;
       
       const { data } = await supabase
         .from('profiles')
         .select('subscription_tier')
-        .eq('id', user.id)
+        .eq('id', sessionData.session.user.id)
         .single();
       
       return data;
@@ -48,12 +48,12 @@ export const CustomDomainManagement = () => {
   }, [isPremium]);
 
   const loadCustomDomains = async () => {
-    if (!user?.id) return;
+    if (!sessionData?.session?.user?.id) return;
 
     const { data, error } = await supabase
       .from('custom_domains')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', sessionData.session.user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -87,7 +87,7 @@ export const CustomDomainManagement = () => {
       return;
     }
 
-    if (!user?.id) {
+    if (!sessionData?.session?.user?.id) {
       toast({
         title: "Error",
         description: "You must be logged in to add domains",
@@ -104,7 +104,7 @@ export const CustomDomainManagement = () => {
       .insert([
         {
           domain: newDomain,
-          user_id: user.id,
+          user_id: sessionData.session.user.id,
           verification_token: verificationToken,
           mx_record: mxRecord,
           verification_status: 'pending'
@@ -138,7 +138,7 @@ export const CustomDomainManagement = () => {
         last_verification_attempt: new Date().toISOString()
       })
       .eq('id', domain.id)
-      .eq('user_id', user?.id);
+      .eq('user_id', sessionData?.session?.user?.id);
 
     if (error) {
       toast({
@@ -161,7 +161,7 @@ export const CustomDomainManagement = () => {
       .from('custom_domains')
       .delete()
       .eq('id', id)
-      .eq('user_id', user?.id);
+      .eq('user_id', sessionData?.session?.user?.id);
 
     if (error) {
       toast({
@@ -207,3 +207,4 @@ export const CustomDomainManagement = () => {
     </div>
   );
 };
+```
