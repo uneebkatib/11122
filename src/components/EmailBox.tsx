@@ -1,6 +1,15 @@
 import { useState, useEffect } from "react";
-import { Copy, RefreshCw } from "lucide-react";
+import { Copy, RefreshCw, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 export const EmailBox = () => {
   const [email, setEmail] = useState("");
@@ -11,7 +20,13 @@ export const EmailBox = () => {
   useEffect(() => {
     generateEmail();
     const timer = setInterval(() => {
-      setTimeLeft((prev) => (prev > 0 ? prev - 1 : 0));
+      setTimeLeft((prev) => {
+        if (prev <= 0) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(timer);
   }, []);
@@ -19,12 +34,14 @@ export const EmailBox = () => {
   const generateEmail = () => {
     const random = Math.random().toString(36).substring(7);
     setEmail(`${random}@tempmail.dev`);
+    setTimeLeft(600); // Reset timer when generating new email
   };
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email);
     toast({
       title: "Email copied to clipboard",
+      description: "You can now paste it anywhere",
       duration: 2000,
     });
   };
@@ -35,6 +52,7 @@ export const EmailBox = () => {
       setLoading(false);
       toast({
         title: "Inbox refreshed",
+        description: "Your inbox is up to date",
         duration: 2000,
       });
     }, 1000);
@@ -48,46 +66,66 @@ export const EmailBox = () => {
 
   return (
     <div className="w-full max-w-3xl mx-auto mt-8 px-4">
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h1 className="text-2xl font-semibold text-center mb-2">Your Temporary Email Address</h1>
-        <p className="text-gray-600 text-center mb-6">
-          This is your unique temporary email address. Copy it and send an email. It will
-          automatically delete when it expires, leaving no trace.
-        </p>
-        
-        <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg mb-6">
-          <div className="flex items-center space-x-2">
-            <span className="text-gray-500">{formatTime(timeLeft)}</span>
-            <span className="font-medium text-gray-900">{email}</span>
-          </div>
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={copyEmail}
-              className="p-2 hover:bg-gray-200 rounded-full transition-colors"
-              title="Copy email"
-            >
-              <Copy className="h-5 w-5 text-gray-600" />
-            </button>
-            <button
-              onClick={refreshInbox}
-              className={`p-2 hover:bg-gray-200 rounded-full transition-colors ${
-                loading ? "animate-spin" : ""
-              }`}
-              title="Refresh inbox"
-              disabled={loading}
-            >
-              <RefreshCw className="h-5 w-5 text-gray-600" />
-            </button>
-          </div>
-        </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Your Temporary Email Address</CardTitle>
+          <CardDescription>
+            This email will expire in {formatTime(timeLeft)}. All messages will be permanently deleted.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-col space-y-4">
+            <div className="flex items-center space-x-2">
+              <Input
+                value={email}
+                readOnly
+                className="font-mono"
+              />
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={copyEmail}
+                title="Copy email"
+              >
+                <Copy className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={generateEmail}
+                title="Generate new email"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={refreshInbox}
+                disabled={loading}
+                className={loading ? "animate-spin" : ""}
+                title="Refresh inbox"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </Button>
+            </div>
 
-        <div className="h-64 flex items-center justify-center border-2 border-dashed rounded-lg">
-          <div className="text-center text-gray-500">
-            <p className="mb-2">Waiting for incoming emails...</p>
-            <RefreshCw className="h-6 w-6 mx-auto animate-spin" />
+            <div className="flex items-center justify-between px-4 py-2 bg-muted rounded-lg text-sm">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span>Time remaining: {formatTime(timeLeft)}</span>
+              </div>
+              <span className="text-muted-foreground">Auto-delete when expired</span>
+            </div>
+
+            <div className="mt-6 border-2 border-dashed rounded-lg p-8">
+              <div className="text-center text-muted-foreground">
+                <p className="mb-2">Your inbox is empty</p>
+                <RefreshCw className="h-6 w-6 mx-auto animate-spin" />
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
