@@ -447,6 +447,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      can_use_custom_domains: {
+        Args: {
+          user_id: string
+        }
+        Returns: boolean
+      }
       is_admin: {
         Args: Record<PropertyKey, never>
         Returns: boolean

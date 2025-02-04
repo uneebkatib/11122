@@ -13,13 +13,32 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [email, setEmail] = useState("");
   const { toast } = useToast();
 
-  const { data: domains, isLoading: isLoadingDomains } = useQuery({
-    queryKey: ['domains'],
+  // Query admin domains for temporary email addresses
+  const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
+    queryKey: ['adminDomains'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('domains')
         .select('*')
         .eq('is_active', true);
+      
+      if (error) throw error;
+      return data;
+    }
+  });
+
+  // Query custom domains for premium users
+  const { data: customDomains, isLoading: isLoadingCustomDomains } = useQuery({
+    queryKey: ['customDomains'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('custom_domains')
+        .select('*')
+        .eq('user_id', user.id)
+        .eq('is_verified', true);
       
       if (error) throw error;
       return data;
@@ -45,13 +64,13 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   });
 
   useEffect(() => {
-    if (domains?.length) {
+    if (adminDomains?.length) {
       generateRandomEmail();
     }
-  }, [domains]);
+  }, [adminDomains]);
 
   const generateRandomEmail = () => {
-    if (!domains?.length) {
+    if (!adminDomains?.length) {
       toast({
         title: "Error",
         description: "No domains available. Please try again later.",
@@ -61,7 +80,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     }
     
     const random = Math.random().toString(36).substring(7);
-    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+    const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
     const newEmail = `${random}@${randomDomain.domain}`;
     setEmail(newEmail);
     
@@ -160,7 +179,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
                 <Copy className="h-5 w-5 text-gray-500" />
               </Button>
               <CustomEmailDialog 
-                domains={domains || []} 
+                domains={customDomains || []} 
                 onCreateEmail={createCustomEmail}
               />
             </div>
