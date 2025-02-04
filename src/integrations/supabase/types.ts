@@ -284,38 +284,32 @@ export type Database = {
       mail_server_config: {
         Row: {
           created_at: string
-          delivery_auth_key: string | null
-          engine_type: string
           id: string
           is_active: boolean | null
-          smtp_host: string | null
-          smtp_password: string | null
-          smtp_port: number | null
-          smtp_username: string | null
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_username: string
           updated_at: string
         }
         Insert: {
           created_at?: string
-          delivery_auth_key?: string | null
-          engine_type?: string
           id?: string
           is_active?: boolean | null
-          smtp_host?: string | null
-          smtp_password?: string | null
-          smtp_port?: number | null
-          smtp_username?: string | null
+          smtp_host: string
+          smtp_password: string
+          smtp_port: number
+          smtp_username: string
           updated_at?: string
         }
         Update: {
           created_at?: string
-          delivery_auth_key?: string | null
-          engine_type?: string
           id?: string
           is_active?: boolean | null
-          smtp_host?: string | null
-          smtp_password?: string | null
-          smtp_port?: number | null
-          smtp_username?: string | null
+          smtp_host?: string
+          smtp_password?: string
+          smtp_port?: number
+          smtp_username?: string
           updated_at?: string
         }
         Relationships: []
