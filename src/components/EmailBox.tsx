@@ -48,7 +48,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
@@ -218,3 +218,4 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     </div>
   );
 };
+
