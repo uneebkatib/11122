@@ -1,4 +1,4 @@
-
+```typescript
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DomainManagement } from "./admin/DomainManagement";
@@ -14,24 +14,13 @@ export const AdminPanel = () => {
           <CardTitle>Email Service Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="emails" className="space-y-4">
+          <Tabs defaultValue="domains" className="space-y-4">
             <TabsList className="grid grid-cols-2 md:grid-cols-4">
-              <TabsTrigger value="emails">Emails</TabsTrigger>
               <TabsTrigger value="domains">Domains</TabsTrigger>
+              <TabsTrigger value="emails">Emails</TabsTrigger>
               <TabsTrigger value="filters">Filters</TabsTrigger>
               <TabsTrigger value="engine">Engine Settings</TabsTrigger>
             </TabsList>
-
-            <TabsContent value="emails">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Email Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <EmailManagement />
-                </CardContent>
-              </Card>
-            </TabsContent>
 
             <TabsContent value="domains">
               <Card>
@@ -40,6 +29,17 @@ export const AdminPanel = () => {
                 </CardHeader>
                 <CardContent>
                   <DomainManagement />
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="emails">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Email Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <EmailManagement />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -71,3 +71,4 @@ export const AdminPanel = () => {
     </div>
   );
 };
+```

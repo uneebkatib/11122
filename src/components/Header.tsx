@@ -1,5 +1,4 @@
-
-import { Mail, User, LogIn } from "lucide-react";
+import { Mail, User, LogIn, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -57,37 +56,50 @@ export const Header = () => {
           
           <nav className="flex items-center space-x-4">
             {session ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <User className="h-5 w-5" />
+              <>
+                {profile?.subscription_tier === 'premium' && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="hidden md:flex"
+                    onClick={() => navigate('/settings')}
+                  >
+                    <SettingsIcon className="h-4 w-4 mr-2" />
+                    Manage Domains
                   </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem className="text-sm">
-                    {session.user.email}
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-sm">
-                    Plan: {profile?.subscription_tier || 'free'}
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  {profile?.is_admin && (
-                    <DropdownMenuItem onSelect={() => navigate('/admin')} className="font-medium text-primary">
-                      Admin Panel
+                )}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" size="icon">
+                      <User className="h-5 w-5" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem className="text-sm">
+                      {session.user.email}
                     </DropdownMenuItem>
-                  )}
-                  <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                    Settings
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate('/settings')}>
-                    Upgrade Plan
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onSelect={handleLogout}>
-                    Logout
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    <DropdownMenuItem className="text-sm">
+                      Plan: {profile?.subscription_tier || 'free'}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    {profile?.is_admin && (
+                      <DropdownMenuItem onSelect={() => navigate('/admin')} className="font-medium text-primary">
+                        Admin Panel
+                      </DropdownMenuItem>
+                    )}
+                    <DropdownMenuItem onSelect={() => navigate('/settings')}>
+                      Settings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={() => navigate('/settings')}>
+                      Upgrade Plan
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onSelect={handleLogout}>
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
             ) : (
               <Button onClick={() => navigate('/login')} variant="outline">
                 <LogIn className="h-4 w-4 mr-2" />

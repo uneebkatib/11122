@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Copy, RefreshCw, Loader2, Mail } from "lucide-react";
+import { Copy, RefreshCw, Loader2, Mail, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -165,10 +165,19 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
             </Button>
             
             <div className="flex-1 mx-4 text-center font-mono text-lg text-gray-700">
-              {email || "Generating email..."}
+              {email || "Click + to generate an email"}
             </div>
 
             <div className="flex gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                className="rounded-full"
+                onClick={generateRandomEmail}
+                disabled={isLoadingAdminDomains}
+              >
+                <Plus className="h-5 w-5 text-gray-500" />
+              </Button>
               <Button 
                 variant="ghost" 
                 size="icon"

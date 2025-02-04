@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -164,7 +165,7 @@ export const DomainManagement = () => {
 
   return (
     <div className="space-y-6">
-      <DomainSetupInstructions />
+      <DomainSetupInstructions isAdmin={true} />
       <AddDomainForm
         newDomain={newDomain}
         onDomainChange={setNewDomain}
