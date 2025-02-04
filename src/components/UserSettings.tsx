@@ -21,9 +21,9 @@ export const UserSettings = () => {
         .from('user_subscriptions')
         .select('*, pricing_plans(*)')
         .eq('user_id', session!.user.id)
-        .single();
+        .maybeSingle();
       
-      if (error) return null;
+      if (error) throw error;
       return data;
     }
   });
