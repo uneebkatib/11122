@@ -86,7 +86,12 @@ export type Database = {
           domain: string
           id: string
           is_verified: boolean | null
+          last_verification_attempt: string | null
+          mx_record: string | null
           user_id: string | null
+          verification_status:
+            | Database["public"]["Enums"]["domain_status"]
+            | null
           verification_token: string
           verified_at: string | null
         }
@@ -95,7 +100,12 @@ export type Database = {
           domain: string
           id?: string
           is_verified?: boolean | null
+          last_verification_attempt?: string | null
+          mx_record?: string | null
           user_id?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["domain_status"]
+            | null
           verification_token: string
           verified_at?: string | null
         }
@@ -104,7 +114,12 @@ export type Database = {
           domain?: string
           id?: string
           is_verified?: boolean | null
+          last_verification_attempt?: string | null
+          mx_record?: string | null
           user_id?: string | null
+          verification_status?:
+            | Database["public"]["Enums"]["domain_status"]
+            | null
           verification_token?: string
           verified_at?: string | null
         }
@@ -360,6 +375,7 @@ export type Database = {
       }
     }
     Enums: {
+      domain_status: "pending" | "verified" | "failed"
       subscription_tier: "free" | "premium"
     }
     CompositeTypes: {

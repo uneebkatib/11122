@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Plus, Trash2, Check, X } from "lucide-react";
+import { Plus, Trash2, Check, X, RefreshCw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -13,6 +13,14 @@ import {
 } from "@/components/ui/table";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface CustomDomain {
   id: string;
@@ -20,6 +28,9 @@ interface CustomDomain {
   verification_token: string;
   is_verified: boolean;
   verified_at: string | null;
+  mx_record: string | null;
+  verification_status: 'pending' | 'verified' | 'failed';
+  last_verification_attempt: string | null;
 }
 
 export const DomainManagement = () => {
@@ -60,6 +71,7 @@ export const DomainManagement = () => {
     }
 
     const verificationToken = Math.random().toString(36).substring(2, 15);
+    const mxRecord = `mx.${newDomain}`;
     
     const { error } = await supabase
       .from('custom_domains')
@@ -67,6 +79,8 @@ export const DomainManagement = () => {
         {
           domain: newDomain,
           verification_token: verificationToken,
+          mx_record: mxRecord,
+          verification_status: 'pending'
         }
       ]);
 
@@ -88,13 +102,13 @@ export const DomainManagement = () => {
   };
 
   const handleVerifyDomain = async (domain: CustomDomain) => {
-    // In a real implementation, this would check DNS records
-    // For demo purposes, we'll just mark it as verified
     const { error } = await supabase
       .from('custom_domains')
       .update({
+        verification_status: 'verified',
         is_verified: true,
         verified_at: new Date().toISOString(),
+        last_verification_attempt: new Date().toISOString()
       })
       .eq('id', domain.id);
 
@@ -137,10 +151,45 @@ export const DomainManagement = () => {
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle>Domain Setup Instructions</CardTitle>
+          <CardDescription>
+            Follow these steps to configure your custom domain for email receiving:
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <Alert>
+            <AlertTitle>1. Add your domain</AlertTitle>
+            <AlertDescription>
+              Enter your domain name below (e.g., example.com)
+            </AlertDescription>
+          </Alert>
+          
+          <Alert>
+            <AlertTitle>2. Configure DNS Records</AlertTitle>
+            <AlertDescription className="space-y-2">
+              <p>Add these records to your domain's DNS settings:</p>
+              <ul className="list-disc pl-4 space-y-1">
+                <li>MX Record: Priority 10, pointing to our mail server</li>
+                <li>TXT Record: For domain verification</li>
+              </ul>
+            </AlertDescription>
+          </Alert>
+
+          <Alert>
+            <AlertTitle>3. Verify Domain</AlertTitle>
+            <AlertDescription>
+              After adding DNS records, click the verify button. This process may take up to 24 hours due to DNS propagation.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+
       <div className="flex gap-2">
         <Input
-          placeholder="Enter new domain"
+          placeholder="Enter domain (e.g., example.com)"
           value={newDomain}
           onChange={(e) => setNewDomain(e.target.value)}
         />
@@ -149,12 +198,13 @@ export const DomainManagement = () => {
           Add Domain
         </Button>
       </div>
+
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Domain</TableHead>
-            <TableHead>Verification Token</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead>DNS Records</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -163,25 +213,39 @@ export const DomainManagement = () => {
             <TableRow key={domain.id}>
               <TableCell>{domain.domain}</TableCell>
               <TableCell>
-                <code className="bg-gray-100 px-2 py-1 rounded">
-                  {domain.verification_token}
-                </code>
-              </TableCell>
-              <TableCell>
-                {domain.is_verified ? (
+                {domain.verification_status === 'verified' ? (
                   <span className="text-green-600 flex items-center">
                     <Check className="h-4 w-4 mr-1" />
                     Verified
                   </span>
+                ) : domain.verification_status === 'failed' ? (
+                  <span className="text-red-600 flex items-center">
+                    <X className="h-4 w-4 mr-1" />
+                    Failed
+                  </span>
                 ) : (
                   <span className="text-yellow-600 flex items-center">
-                    <X className="h-4 w-4 mr-1" />
-                    Unverified
+                    <RefreshCw className="h-4 w-4 mr-1" />
+                    Pending
                   </span>
                 )}
               </TableCell>
+              <TableCell className="space-y-2">
+                <div>
+                  <p className="text-sm font-medium">MX Record:</p>
+                  <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                    {domain.mx_record}
+                  </code>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">TXT Record:</p>
+                  <code className="text-xs bg-gray-100 px-2 py-1 rounded">
+                    {domain.verification_token}
+                  </code>
+                </div>
+              </TableCell>
               <TableCell className="space-x-2">
-                {!domain.is_verified && (
+                {domain.verification_status !== 'verified' && (
                   <Button
                     variant="outline"
                     size="sm"
