@@ -2,52 +2,82 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { DomainSetupInstructions } from "./domain/DomainSetupInstructions";
-import { AddDomainForm } from "./domain/AddDomainForm";
-import { DomainTable } from "./domain/DomainTable";
+import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
+import { Crown } from "lucide-react";
+import { DomainSetupInstructions } from "../admin/domain/DomainSetupInstructions";
+import { AddDomainForm } from "../admin/domain/AddDomainForm";
+import { DomainTable } from "../admin/domain/DomainTable";
 import type { CustomDomain } from "@/types/domain";
+import { useQuery } from "@tanstack/react-query";
 
-export const DomainManagement = () => {
+export const CustomDomainManagement = () => {
   const [newDomain, setNewDomain] = useState("");
-  const [globalDomains, setGlobalDomains] = useState<CustomDomain[]>([]);
+  const [customDomains, setCustomDomains] = useState<CustomDomain[]>([]);
   const { toast } = useToast();
 
-  useEffect(() => {
-    loadGlobalDomains();
-  }, []);
-
-  const loadGlobalDomains = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to manage domains",
-        variant: "destructive",
-      });
-      return;
+  const { data: { user } } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getSession();
+      return data;
     }
+  });
 
-    // Load global domains that admins can manage
+  const { data: profile } = useQuery({
+    queryKey: ['profile', user?.id],
+    enabled: !!user?.id,
+    queryFn: async () => {
+      if (!user?.id) return null;
+      
+      const { data } = await supabase
+        .from('profiles')
+        .select('subscription_tier')
+        .eq('id', user.id)
+        .single();
+      
+      return data;
+    }
+  });
+
+  const isPremium = profile?.subscription_tier === 'premium';
+
+  useEffect(() => {
+    if (isPremium) {
+      loadCustomDomains();
+    }
+  }, [isPremium]);
+
+  const loadCustomDomains = async () => {
+    if (!user?.id) return;
+
     const { data, error } = await supabase
-      .from('domains')
+      .from('custom_domains')
       .select('*')
-      .eq('is_global', true)
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
       toast({
         title: "Error",
-        description: "Failed to load global domains",
+        description: "Failed to load custom domains",
         variant: "destructive",
       });
       return;
     }
 
-    setGlobalDomains(data);
+    setCustomDomains(data || []);
   };
 
   const handleAddDomain = async () => {
+    if (!isPremium) {
+      toast({
+        title: "Premium Feature",
+        description: "Custom domains are only available for premium users",
+        variant: "destructive",
+      });
+      return;
+    }
+
     if (!newDomain) {
       toast({
         title: "Error",
@@ -57,9 +87,7 @@ export const DomainManagement = () => {
       return;
     }
 
-    const { data: { user } } = await supabase.auth.getUser();
-    
-    if (!user) {
+    if (!user?.id) {
       toast({
         title: "Error",
         description: "You must be logged in to add domains",
@@ -72,15 +100,14 @@ export const DomainManagement = () => {
     const mxRecord = `mx.${newDomain}`;
     
     const { error } = await supabase
-      .from('domains')
+      .from('custom_domains')
       .insert([
         {
           domain: newDomain,
+          user_id: user.id,
           verification_token: verificationToken,
           mx_record: mxRecord,
-          verification_status: 'pending',
-          is_global: true,
-          is_active: true
+          verification_status: 'pending'
         }
       ]);
 
@@ -93,7 +120,7 @@ export const DomainManagement = () => {
       return;
     }
 
-    await loadGlobalDomains();
+    await loadCustomDomains();
     setNewDomain("");
     toast({
       title: "Success",
@@ -103,13 +130,15 @@ export const DomainManagement = () => {
 
   const handleVerifyDomain = async (domain: CustomDomain) => {
     const { error } = await supabase
-      .from('domains')
+      .from('custom_domains')
       .update({
         verification_status: 'verified',
+        is_verified: true,
         verified_at: new Date().toISOString(),
         last_verification_attempt: new Date().toISOString()
       })
-      .eq('id', domain.id);
+      .eq('id', domain.id)
+      .eq('user_id', user?.id);
 
     if (error) {
       toast({
@@ -120,7 +149,7 @@ export const DomainManagement = () => {
       return;
     }
 
-    await loadGlobalDomains();
+    await loadCustomDomains();
     toast({
       title: "Success",
       description: "Domain verified successfully",
@@ -129,9 +158,10 @@ export const DomainManagement = () => {
 
   const handleDeleteDomain = async (id: string) => {
     const { error } = await supabase
-      .from('domains')
+      .from('custom_domains')
       .delete()
-      .eq('id', id);
+      .eq('id', id)
+      .eq('user_id', user?.id);
 
     if (error) {
       toast({
@@ -142,12 +172,24 @@ export const DomainManagement = () => {
       return;
     }
 
-    await loadGlobalDomains();
+    await loadCustomDomains();
     toast({
       title: "Success",
       description: "Domain deleted successfully",
     });
   };
+
+  if (!isPremium) {
+    return (
+      <Alert>
+        <Crown className="h-4 w-4" />
+        <AlertTitle>Premium Feature</AlertTitle>
+        <AlertDescription>
+          Custom domain management is available only for premium users. Upgrade your account to access this feature.
+        </AlertDescription>
+      </Alert>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -158,7 +200,7 @@ export const DomainManagement = () => {
         onSubmit={handleAddDomain}
       />
       <DomainTable
-        domains={globalDomains}
+        domains={customDomains}
         onVerify={handleVerifyDomain}
         onDelete={handleDeleteDomain}
       />

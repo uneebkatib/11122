@@ -131,6 +131,7 @@ export type Database = {
           domain: string
           id: string
           is_active: boolean | null
+          is_global: boolean | null
           last_verification_attempt: string | null
           mx_record: string | null
           verification_status: string | null
@@ -142,6 +143,7 @@ export type Database = {
           domain: string
           id?: string
           is_active?: boolean | null
+          is_global?: boolean | null
           last_verification_attempt?: string | null
           mx_record?: string | null
           verification_status?: string | null
@@ -153,6 +155,7 @@ export type Database = {
           domain?: string
           id?: string
           is_active?: boolean | null
+          is_global?: boolean | null
           last_verification_attempt?: string | null
           mx_record?: string | null
           verification_status?: string | null
