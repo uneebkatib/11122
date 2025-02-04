@@ -314,6 +314,51 @@ export type Database = {
         }
         Relationships: []
       }
+      mail_servers: {
+        Row: {
+          created_at: string
+          domain: string
+          hostname: string
+          id: string
+          is_active: boolean | null
+          last_check_at: string | null
+          password: string
+          port: number
+          server_type: Database["public"]["Enums"]["mail_server_type"]
+          updated_at: string
+          use_tls: boolean | null
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          hostname: string
+          id?: string
+          is_active?: boolean | null
+          last_check_at?: string | null
+          password: string
+          port: number
+          server_type: Database["public"]["Enums"]["mail_server_type"]
+          updated_at?: string
+          use_tls?: boolean | null
+          username: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          hostname?: string
+          id?: string
+          is_active?: boolean | null
+          last_check_at?: string | null
+          password?: string
+          port?: number
+          server_type?: Database["public"]["Enums"]["mail_server_type"]
+          updated_at?: string
+          use_tls?: boolean | null
+          username?: string
+        }
+        Relationships: []
+      }
       payment_history: {
         Row: {
           amount: number
@@ -496,6 +541,7 @@ export type Database = {
     }
     Enums: {
       domain_status: "pending" | "verified" | "failed"
+      mail_server_type: "smtp" | "imap" | "pop3"
       subscription_tier: "free" | "premium"
     }
     CompositeTypes: {
