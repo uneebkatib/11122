@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Copy, RefreshCw, Clock, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -11,41 +10,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { EmailMessage } from "./EmailMessage";
 
 interface EmailBoxProps {
   duration?: number;
 }
 
-const demoEmails = [
-  {
-    id: 1,
-    subject: "Welcome to Your Temporary Email",
-    from: "support@tempmail.dev",
-    date: new Date().toLocaleString(),
-    preview: "Thank you for using our service. This is a demo email to show how the inbox works.",
-  },
-  {
-    id: 2,
-    subject: "Your Account Verification",
-    from: "noreply@example.com",
-    date: new Date(Date.now() - 1000 * 60 * 30).toLocaleString(),
-    preview: "Please click the link below to verify your account registration...",
-  },
-  {
-    id: 3,
-    subject: "Special Offer Inside!",
-    from: "marketing@demo.com",
-    date: new Date(Date.now() - 1000 * 60 * 60).toLocaleString(),
-    preview: "Don't miss out on our latest deals and promotions...",
-  },
-];
-
 export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [email, setEmail] = useState("");
   const [timeLeft, setTimeLeft] = useState(duration);
   const [loading, setLoading] = useState(false);
-  const [showEmails, setShowEmails] = useState(true);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -66,7 +39,6 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     const random = Math.random().toString(36).substring(7);
     setEmail(`${random}@tempmail.dev`);
     setTimeLeft(duration);
-    setShowEmails(true);
   };
 
   const copyEmail = () => {
@@ -149,27 +121,11 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
               <span className="text-muted-foreground">Auto-delete when expired</span>
             </div>
 
-            <div className="mt-6">
-              {showEmails ? (
-                <div className="space-y-4">
-                  {demoEmails.map((email) => (
-                    <EmailMessage
-                      key={email.id}
-                      subject={email.subject}
-                      from={email.from}
-                      date={email.date}
-                      preview={email.preview}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <div className="border-2 border-dashed rounded-lg p-8">
-                  <div className="text-center text-muted-foreground">
-                    <p className="mb-2">Your inbox is empty</p>
-                    <RefreshCw className="h-6 w-6 mx-auto animate-spin" />
-                  </div>
-                </div>
-              )}
+            <div className="mt-6 border-2 border-dashed rounded-lg p-8">
+              <div className="text-center text-muted-foreground">
+                <p className="mb-2">Your inbox is empty</p>
+                <RefreshCw className="h-6 w-6 mx-auto animate-spin" />
+              </div>
             </div>
           </div>
         </CardContent>
