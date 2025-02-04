@@ -1,6 +1,8 @@
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import Login from "./pages/Login";
 import TenMinuteMail from "./pages/TenMinuteMail";
 import ThirtyMinuteMail from "./pages/ThirtyMinuteMail";
 import Admin from "./pages/Admin";
@@ -14,6 +16,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/10minutemail" element={<TenMinuteMail />} />
           <Route path="/30minutemail" element={<ThirtyMinuteMail />} />
           <Route path="/admin" element={<Admin />} />

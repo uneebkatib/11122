@@ -25,7 +25,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const { data: domains } = useQuery({
+  const { data: domains, isLoading: isLoadingDomains } = useQuery({
     queryKey: ['domains'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -55,8 +55,33 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     }
   });
 
+  const generateEmail = () => {
+    if (!domains?.length) {
+      toast({
+        title: "Error",
+        description: "No domains available. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    const random = Math.random().toString(36).substring(7);
+    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+    const newEmail = `${random}@${randomDomain.domain}`;
+    setEmail(newEmail);
+    setTimeLeft(duration);
+    
+    toast({
+      title: "Email Generated",
+      description: "Your temporary email has been created",
+    });
+  };
+
   useEffect(() => {
-    generateEmail();
+    if (!isLoadingDomains) {
+      generateEmail();
+    }
+    
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 0) {
@@ -66,16 +91,9 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         return prev - 1;
       });
     }, 1000);
+    
     return () => clearInterval(timer);
-  }, []);
-
-  const generateEmail = () => {
-    if (!domains?.length) return;
-    const random = Math.random().toString(36).substring(7);
-    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
-    setEmail(`${random}@${randomDomain.domain}`);
-    setTimeLeft(duration);
-  };
+  }, [isLoadingDomains, domains]);
 
   const copyEmail = () => {
     navigator.clipboard.writeText(email);
@@ -175,7 +193,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
                 <div className="mt-6 border-2 border-dashed rounded-lg p-8">
                   <div className="text-center text-muted-foreground">
                     <p className="mb-2">Your inbox is empty</p>
-                    <RefreshCw className="h-6 w-6 mx-auto animate-spin" />
+                    <p className="text-sm">Waiting for new messages...</p>
                   </div>
                 </div>
               </TabsContent>
