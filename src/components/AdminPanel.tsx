@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import { DomainManagement } from "./admin/DomainManagement";
 import { EmailManagement } from "./admin/EmailManagement";
 import { WelcomeSection } from "./admin/WelcomeSection";
 import { AnnouncementBanner } from "./admin/AnnouncementBanner";
+import { AppSettings } from "./admin/AppSettings";
+import { EngineSettings } from "./admin/EngineSettings";
 
 export const AdminPanel = () => {
   return (
@@ -18,13 +18,23 @@ export const AdminPanel = () => {
           <CardTitle>Admin Panel</CardTitle>
         </CardHeader>
         <CardContent>
-          <Tabs defaultValue="domains" className="space-y-4">
-            <TabsList>
+          <Tabs defaultValue="app" className="space-y-4">
+            <TabsList className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6">
+              <TabsTrigger value="app">App</TabsTrigger>
+              <TabsTrigger value="engine">Engine</TabsTrigger>
               <TabsTrigger value="domains">Domains</TabsTrigger>
-              <TabsTrigger value="emails">Email Addresses</TabsTrigger>
+              <TabsTrigger value="emails">Emails</TabsTrigger>
               <TabsTrigger value="settings">Settings</TabsTrigger>
               <TabsTrigger value="themes">Themes</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="app">
+              <AppSettings />
+            </TabsContent>
+
+            <TabsContent value="engine">
+              <EngineSettings />
+            </TabsContent>
 
             <TabsContent value="domains">
               <DomainManagement />
@@ -34,7 +44,7 @@ export const AdminPanel = () => {
               <EmailManagement />
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-4">
+            <TabsContent value="settings">
               <Card>
                 <CardHeader>
                   <CardTitle>Global Settings</CardTitle>
