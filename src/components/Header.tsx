@@ -23,7 +23,7 @@ export const Header = () => {
     }
   });
 
-  const { data: profile } = useQuery({
+  const { data: profile, isError: profileError } = useQuery({
     queryKey: ['profile', session?.user?.id],
     enabled: !!session?.user?.id,
     queryFn: async () => {
@@ -33,7 +33,10 @@ export const Header = () => {
         .eq('id', session!.user.id)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching profile:', error);
+        return null;
+      }
       return data;
     }
   });
@@ -76,7 +79,7 @@ export const Header = () => {
                   <DropdownMenuItem onSelect={() => navigate('/settings')}>
                     Settings
                   </DropdownMenuItem>
-                  <DropdownMenuItem onSelect={() => navigate('/login')}>
+                  <DropdownMenuItem onSelect={() => navigate('/settings')}>
                     Upgrade Plan
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
