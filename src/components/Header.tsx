@@ -28,9 +28,9 @@ export const Header = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*, user_subscriptions(*)')
+        .select('*, subscription_tier')
         .eq('id', session!.user.id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
       return data;
