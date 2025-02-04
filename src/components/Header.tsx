@@ -69,7 +69,7 @@ export const Header = () => {
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   {profile?.is_admin && (
-                    <DropdownMenuItem onSelect={() => navigate('/admin')}>
+                    <DropdownMenuItem onSelect={() => navigate('/admin')} className="font-medium text-primary">
                       Admin Panel
                     </DropdownMenuItem>
                   )}
@@ -97,3 +97,4 @@ export const Header = () => {
     </header>
   );
 };
+
