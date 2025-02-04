@@ -4,9 +4,11 @@ import { AdminPanel } from "@/components/AdminPanel";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const Admin = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   useEffect(() => {
     const checkAdmin = async () => {
@@ -23,6 +25,11 @@ const Admin = () => {
         .single();
 
       if (!profile?.is_admin) {
+        toast({
+          title: "Access Denied",
+          description: "You don't have permission to access the admin panel.",
+          variant: "destructive",
+        });
         navigate('/');
       }
     };

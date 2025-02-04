@@ -4,8 +4,21 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export const PricingPlans = () => {
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    }
+  });
+
   const { data: plans } = useQuery({
     queryKey: ['pricing-plans'],
     queryFn: async () => {
@@ -18,6 +31,45 @@ export const PricingPlans = () => {
       return data;
     }
   });
+
+  const handleSubscribe = async (planId: string, price: number) => {
+    if (!session) {
+      navigate('/login');
+      return;
+    }
+
+    if (price === 0) {
+      // Handle free plan subscription
+      const { error } = await supabase.from('user_subscriptions').insert({
+        user_id: session.user.id,
+        plan_id: planId,
+        status: 'active',
+        current_period_start: new Date().toISOString(),
+        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to subscribe to the free plan. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      toast({
+        title: "Success",
+        description: "You've been successfully subscribed to the free plan!",
+      });
+    } else {
+      // Navigate to payment gateway for paid plans
+      // This is where you would integrate with your payment provider
+      toast({
+        title: "Coming Soon",
+        description: "Payment gateway integration is coming soon!",
+      });
+    }
+  };
 
   return (
     <div className="container mx-auto px-4 py-16" id="pricing">
@@ -47,7 +99,10 @@ export const PricingPlans = () => {
                   </li>
                 ))}
               </ul>
-              <Button className="w-full">
+              <Button 
+                className="w-full"
+                onClick={() => handleSubscribe(plan.id, plan.price)}
+              >
                 {plan.price === 0 ? 'Get Started' : 'Subscribe Now'}
               </Button>
             </CardContent>

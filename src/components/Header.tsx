@@ -23,14 +23,14 @@ export const Header = () => {
   });
 
   const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    enabled: !!session?.user,
+    queryKey: ['profile', session?.user?.id],
+    enabled: !!session?.user?.id,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('profiles')
-        .select('*')
+        .select('*, user_subscriptions(*)')
         .eq('id', session!.user.id)
-        .maybeSingle();
+        .single();
       
       if (error) throw error;
       return data;
@@ -59,7 +59,7 @@ export const Header = () => {
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem className="text-sm">
                     {session.user.email}
                   </DropdownMenuItem>
@@ -71,6 +71,9 @@ export const Header = () => {
                       Admin Panel
                     </DropdownMenuItem>
                   )}
+                  <DropdownMenuItem onClick={() => navigate('#pricing')}>
+                    Upgrade Plan
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>
@@ -88,4 +91,3 @@ export const Header = () => {
     </header>
   );
 };
-
