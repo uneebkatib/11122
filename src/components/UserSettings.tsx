@@ -13,7 +13,7 @@ export const UserSettings = () => {
     }
   });
 
-  const { data: subscription } = useQuery({
+  const { data: subscription, error: subscriptionError } = useQuery({
     queryKey: ['user-subscription'],
     enabled: !!session?.user,
     queryFn: async () => {
@@ -23,12 +23,20 @@ export const UserSettings = () => {
         .eq('user_id', session!.user.id)
         .maybeSingle();
       
-      if (error) throw error;
+      if (error) {
+        console.error('Subscription query error:', error);
+        return null;
+      }
       return data;
     }
   });
 
   if (!session) return null;
+
+  if (subscriptionError) {
+    console.error('Error fetching subscription:', subscriptionError);
+    return null;
+  }
 
   return (
     <div className="container mx-auto px-4 py-16">
