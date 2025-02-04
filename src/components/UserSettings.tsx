@@ -44,23 +44,57 @@ export const UserSettings = () => {
     
     setIsProcessing(true);
     try {
-      const { data: { publicURL }, error: storageError } = await supabase
-        .storage
-        .from('qr-codes')
-        .getPublicUrl('payment-address.png');
+      // Create a new subscription record if one doesn't exist
+      if (!subscription) {
+        // First, get the premium plan ID
+        const { data: premiumPlan } = await supabase
+          .from('pricing_plans')
+          .select('id')
+          .eq('name', 'Premium')
+          .single();
 
-      if (storageError) throw storageError;
+        if (!premiumPlan) throw new Error('Premium plan not found');
 
-      const { error: subscriptionError } = await supabase
-        .from('user_subscriptions')
-        .update({
+        const { error: createError } = await supabase
+          .from('user_subscriptions')
+          .insert({
+            user_id: session.user.id,
+            plan_id: premiumPlan.id,
+            status: 'pending_payment',
+            payment_method: 'crypto',
+            crypto_payment_address: cryptoAddress,
+            current_period_start: new Date().toISOString(),
+            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+          });
+
+        if (createError) throw createError;
+      } else {
+        // Update existing subscription
+        const { error: updateError } = await supabase
+          .from('user_subscriptions')
+          .update({
+            payment_method: 'crypto',
+            crypto_payment_address: cryptoAddress,
+            status: 'pending_payment'
+          })
+          .eq('user_id', session.user.id);
+
+        if (updateError) throw updateError;
+      }
+
+      // Create payment history record
+      const { error: paymentError } = await supabase
+        .from('payment_history')
+        .insert({
+          user_id: session.user.id,
+          subscription_id: subscription?.id,
+          amount: 29.99, // Assuming this is the premium plan price
+          currency: 'USD',
           payment_method: 'crypto',
-          crypto_payment_address: cryptoAddress,
-          status: 'pending_payment'
-        })
-        .eq('user_id', session.user.id);
+          status: 'pending'
+        });
 
-      if (subscriptionError) throw subscriptionError;
+      if (paymentError) throw paymentError;
 
       toast({
         title: "Payment Instructions",
