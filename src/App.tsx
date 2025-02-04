@@ -7,6 +7,7 @@ import TenMinuteMail from "./pages/TenMinuteMail";
 import ThirtyMinuteMail from "./pages/ThirtyMinuteMail";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
+import Settings from "./pages/Settings";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,7 @@ const App = () => (
           <Route path="/10minutemail" element={<TenMinuteMail />} />
           <Route path="/30minutemail" element={<ThirtyMinuteMail />} />
           <Route path="/admin" element={<Admin />} />
+          <Route path="/settings" element={<Settings />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
