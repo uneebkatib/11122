@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from "react";
-import { Copy, RefreshCw, Loader2, Mail, Trash2 } from "lucide-react";
+import { Copy, RefreshCw, Loader2, Mail, Plus, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -52,7 +52,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
       return data as Email[];
     },
     enabled: !!email,
-    refetchInterval: 5000, // Poll every 5 seconds
+    refetchInterval: 5000,
   });
 
   const generateEmail = () => {
@@ -72,8 +72,8 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     setSelectedEmail(null);
     
     toast({
-      title: "Email Generated",
-      description: "Your temporary email has been created",
+      title: "New Email Created",
+      description: newEmail,
     });
   };
 
@@ -82,14 +82,6 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     toast({
       title: "Copied!",
       description: "Email address copied to clipboard",
-    });
-  };
-
-  const checkInbox = () => {
-    refetchEmails();
-    toast({
-      title: "Checking inbox...",
-      description: "Refreshing your messages",
     });
   };
 
@@ -129,59 +121,71 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   }, [email, refetchEmails]);
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <div className="p-6 border-b">
-          <h2 className="text-2xl font-semibold mb-4">Your Temporary Email</h2>
-          <div className="flex items-center gap-2">
-            <div className="flex-1 p-3 bg-gray-50 rounded-lg border font-mono text-sm">
-              {email}
-            </div>
-            <Button variant="outline" size="icon" onClick={copyEmail}>
-              <Copy className="h-4 w-4" />
-            </Button>
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      {/* Email Management Section */}
+      <div className="bg-white rounded-lg shadow p-4">
+        <div className="flex items-center gap-3">
+          <div className="flex-1 bg-gray-50 p-3 rounded-lg font-mono text-sm truncate">
+            {email}
           </div>
-          <div className="flex gap-2 mt-4">
-            <Button onClick={generateEmail}>New Email</Button>
-            <Button variant="outline" onClick={checkInbox} disabled={isLoadingEmails}>
-              {isLoadingEmails ? (
-                <Loader2 className="h-4 w-4 animate-spin mr-2" />
-              ) : (
-                <RefreshCw className="h-4 w-4 mr-2" />
-              )}
-              Check Inbox
-            </Button>
-          </div>
+          <Button variant="outline" size="icon" onClick={copyEmail} title="Copy Email">
+            <Copy className="h-4 w-4" />
+          </Button>
+          <Button variant="outline" size="icon" onClick={generateEmail} title="New Email">
+            <Plus className="h-4 w-4" />
+          </Button>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={() => refetchEmails()}
+            disabled={isLoadingEmails}
+            title="Refresh Inbox"
+          >
+            {isLoadingEmails ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCw className="h-4 w-4" />
+            )}
+          </Button>
         </div>
+      </div>
 
+      {/* Inbox Section */}
+      <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="grid md:grid-cols-2 divide-x">
-          <div className="p-4 space-y-2 max-h-[600px] overflow-y-auto">
-            <h3 className="font-medium text-gray-500 px-2">Inbox</h3>
-            {emails?.length === 0 ? (
-              <div className="text-center py-8 text-gray-500">
-                <Mail className="h-12 w-12 mx-auto mb-4 opacity-20" />
+          {/* Email List */}
+          <div className="h-[600px] overflow-y-auto">
+            <div className="p-4 border-b">
+              <h2 className="text-lg font-semibold">Inbox</h2>
+            </div>
+            {isLoadingEmails ? (
+              <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
+                <Loader2 className="h-8 w-8 animate-spin mb-4" />
+                <p>Checking for new emails...</p>
+              </div>
+            ) : emails?.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
+                <Mail className="h-12 w-12 mb-4 opacity-20" />
                 <p>No messages yet</p>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="divide-y">
                 {emails?.map((mail) => (
                   <button
                     key={mail.id}
                     onClick={() => setSelectedEmail(mail)}
-                    className={`w-full p-3 text-left rounded-lg transition-colors ${
-                      selectedEmail?.id === mail.id
-                        ? "bg-blue-50 border-blue-200"
-                        : "hover:bg-gray-50 border-transparent"
-                    } border`}
+                    className={`w-full p-4 text-left hover:bg-gray-50 transition-colors ${
+                      selectedEmail?.id === mail.id ? "bg-blue-50" : ""
+                    }`}
                   >
                     <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 min-w-0">
+                      <div className="min-w-0">
                         <p className="font-medium truncate">{mail.subject || "(no subject)"}</p>
                         <p className="text-sm text-gray-500 truncate">{mail.from_email}</p>
+                        <p className="text-xs text-gray-400">
+                          {formatDistanceToNow(new Date(mail.received_at), { addSuffix: true })}
+                        </p>
                       </div>
-                      <time className="text-xs text-gray-400 whitespace-nowrap">
-                        {formatDistanceToNow(new Date(mail.received_at), { addSuffix: true })}
-                      </time>
                     </div>
                   </button>
                 ))}
@@ -189,7 +193,8 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
             )}
           </div>
 
-          <div className="p-4 max-h-[600px] overflow-y-auto">
+          {/* Email Content */}
+          <div className="h-[600px] overflow-y-auto p-4">
             {selectedEmail ? (
               <div className="space-y-4">
                 <div className="flex justify-between items-start">
@@ -214,8 +219,8 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
                 </div>
               </div>
             ) : (
-              <div className="text-center py-8 text-gray-500">
-                <Mail className="h-12 w-12 mx-auto mb-4 opacity-20" />
+              <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                <Mail className="h-12 w-12 mb-4 opacity-20" />
                 <p>Select an email to read</p>
               </div>
             )}
