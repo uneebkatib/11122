@@ -34,6 +34,16 @@ export const APIKeysManagement = () => {
   }, []);
 
   const loadAPIKeys = async () => {
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to manage API keys",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from('api_keys')
       .select('*')
@@ -61,17 +71,26 @@ export const APIKeysManagement = () => {
       return;
     }
 
+    const { data: session } = await supabase.auth.getSession();
+    if (!session?.session?.user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to create API keys",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const newKey = Math.random().toString(36).substring(2) + 
                   Math.random().toString(36).substring(2);
     
     const { error } = await supabase
       .from('api_keys')
-      .insert([
-        {
-          name: newKeyName,
-          key_hash: newKey, // In a real app, this should be hashed
-        }
-      ]);
+      .insert({
+        name: newKeyName,
+        key_hash: newKey,
+        user_id: session.session.user.id,
+      });
 
     if (error) {
       toast({
@@ -88,7 +107,6 @@ export const APIKeysManagement = () => {
       title: "Success",
       description: "API key created successfully. Make sure to copy your key now!",
     });
-    // In a real app, show the actual API key to the user here
   };
 
   const handleRevokeKey = async (id: string) => {
