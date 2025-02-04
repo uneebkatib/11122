@@ -1,5 +1,5 @@
 
-import { User, LogIn } from "lucide-react";
+import { Mail, User, LogIn } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,43 +43,41 @@ export const Header = () => {
   };
 
   return (
-    <header className="w-full bg-[#1A1F2C] border-b border-gray-800">
+    <header className="w-full border-b bg-background">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-2xl font-semibold">
-              <span className="text-[#9b87f5]">Jemp</span>
-              <span className="text-[#4CAF50]">Mail</span>
-            </span>
+            <Mail className="h-6 w-6 text-primary" />
+            <span className="text-xl font-semibold">TempMail</span>
           </div>
           
           <nav className="flex items-center space-x-4">
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon" className="text-gray-300 hover:text-white hover:bg-gray-700">
+                  <Button variant="outline" size="icon">
                     <User className="h-5 w-5" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-[#2A2F3C] border-gray-700 text-gray-200">
-                  <DropdownMenuItem className="text-sm hover:bg-gray-700">
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem className="text-sm">
                     {session.user.email}
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-sm hover:bg-gray-700">
+                  <DropdownMenuItem className="text-sm">
                     Plan: {profile?.subscription_tier || 'free'}
                   </DropdownMenuItem>
                   {profile?.is_admin && (
-                    <DropdownMenuItem onClick={() => navigate('/admin')} className="hover:bg-gray-700">
+                    <DropdownMenuItem onClick={() => navigate('/admin')}>
                       Admin Panel
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem onClick={handleLogout} className="hover:bg-gray-700">
+                  <DropdownMenuItem onClick={handleLogout}>
                     Logout
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Button onClick={() => navigate('/login')} variant="ghost" className="text-gray-300 hover:text-white hover:bg-gray-700">
+              <Button onClick={() => navigate('/login')} variant="outline">
                 <LogIn className="h-4 w-4 mr-2" />
                 Sign In
               </Button>
@@ -90,3 +88,4 @@ export const Header = () => {
     </header>
   );
 };
+
