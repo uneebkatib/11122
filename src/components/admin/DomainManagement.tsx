@@ -17,9 +17,21 @@ export const DomainManagement = () => {
   }, []);
 
   const loadCustomDomains = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to manage domains",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const { data, error } = await supabase
       .from('custom_domains')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -44,6 +56,17 @@ export const DomainManagement = () => {
       return;
     }
 
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to add domains",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const verificationToken = Math.random().toString(36).substring(2, 15);
     const mxRecord = `mx.${newDomain}`;
     
@@ -52,6 +75,7 @@ export const DomainManagement = () => {
       .insert([
         {
           domain: newDomain,
+          user_id: user.id,
           verification_token: verificationToken,
           mx_record: mxRecord,
           verification_status: 'pending'
