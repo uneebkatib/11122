@@ -18,16 +18,18 @@ interface MailServerConfig {
   is_active: boolean;
 }
 
+const defaultConfig: MailServerConfig = {
+  id: '',
+  smtp_host: '',
+  smtp_port: 587,
+  smtp_username: '',
+  smtp_password: '',
+  is_active: true
+};
+
 export const EngineSettings = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const [config, setConfig] = useState<MailServerConfig>({
-    id: '',
-    smtp_host: '',
-    smtp_port: 587,
-    smtp_username: '',
-    smtp_password: '',
-    is_active: true
-  });
+  const [config, setConfig] = useState<MailServerConfig>(defaultConfig);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -38,10 +40,10 @@ export const EngineSettings = () => {
         .from('mail_server_config')
         .select('*')
         .limit(1)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as MailServerConfig;
+      return data as MailServerConfig | null;
     }
   });
 
