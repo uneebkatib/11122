@@ -3,6 +3,21 @@ import { useState, useEffect } from "react";
 import { Copy, RefreshCw, Loader2, Mail, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { formatDistanceToNow } from "date-fns";
@@ -22,6 +37,8 @@ interface Email {
 
 export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [email, setEmail] = useState("");
+  const [customUsername, setCustomUsername] = useState("");
+  const [selectedDomain, setSelectedDomain] = useState("");
   const [selectedEmail, setSelectedEmail] = useState<Email | null>(null);
   const { toast } = useToast();
 
@@ -56,7 +73,14 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     refetchInterval: 5000,
   });
 
-  const generateEmail = () => {
+  // Generate random email on component mount
+  useEffect(() => {
+    if (domains?.length) {
+      generateRandomEmail();
+    }
+  }, [domains]);
+
+  const generateRandomEmail = () => {
     if (!domains?.length) {
       toast({
         title: "Error",
@@ -71,6 +95,28 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     const newEmail = `${random}@${randomDomain.domain}`;
     setEmail(newEmail);
     setSelectedEmail(null);
+    
+    toast({
+      title: "New Email Created",
+      description: newEmail,
+    });
+  };
+
+  const createCustomEmail = () => {
+    if (!customUsername || !selectedDomain) {
+      toast({
+        title: "Error",
+        description: "Please enter a username and select a domain",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const newEmail = `${customUsername}@${selectedDomain}`;
+    setEmail(newEmail);
+    setSelectedEmail(null);
+    setCustomUsername("");
+    setSelectedDomain("");
     
     toast({
       title: "New Email Created",
@@ -137,7 +183,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
             </Button>
             
             <div className="flex-1 mx-4 text-center font-mono text-lg text-gray-700">
-              {email || "Click + to generate email"}
+              {email || "Generating email..."}
             </div>
 
             <div className="flex gap-2">
@@ -150,14 +196,48 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
               >
                 <Copy className="h-5 w-5 text-gray-500" />
               </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                className="rounded-full"
-                onClick={generateEmail}
-              >
-                <Plus className="h-5 w-5 text-gray-500" />
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button 
+                    variant="ghost" 
+                    size="icon"
+                    className="rounded-full"
+                  >
+                    <Plus className="h-5 w-5 text-gray-500" />
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create Custom Email</DialogTitle>
+                  </DialogHeader>
+                  <div className="space-y-4 py-4">
+                    <div className="space-y-2">
+                      <Input
+                        placeholder="Enter username"
+                        value={customUsername}
+                        onChange={(e) => setCustomUsername(e.target.value)}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Select onValueChange={setSelectedDomain} value={selectedDomain}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select domain" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {domains?.map((domain) => (
+                            <SelectItem key={domain.id} value={domain.domain}>
+                              @{domain.domain}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button className="w-full" onClick={createCustomEmail}>
+                      Create Email
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
             </div>
           </div>
         </div>
@@ -176,7 +256,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
           ) : !email ? (
             <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
               <Mail className="h-12 w-12 mb-4 opacity-20" />
-              <p>Generate an email address to start</p>
+              <p>Generating email address...</p>
             </div>
           ) : emails?.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-[500px] text-gray-500">
