@@ -9,16 +9,123 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      domains: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_active: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_active?: boolean | null
+        }
+        Relationships: []
+      }
+      email_usage: {
+        Row: {
+          id: string
+          ip_address: string | null
+          used_at: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          used_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          used_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      imap_configs: {
+        Row: {
+          created_at: string
+          encryption: string
+          host: string
+          id: string
+          is_active: boolean | null
+          password: string
+          port: number
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          encryption?: string
+          host: string
+          id?: string
+          is_active?: boolean | null
+          password: string
+          port: number
+          username: string
+        }
+        Update: {
+          created_at?: string
+          encryption?: string
+          host?: string
+          id?: string
+          is_active?: boolean | null
+          password?: string
+          port?: number
+          username?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email_limit_per_hour: number | null
+          id: string
+          is_admin: boolean | null
+          subscription_tier:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+        }
+        Insert: {
+          created_at?: string
+          email_limit_per_hour?: number | null
+          id: string
+          is_admin?: boolean | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+        }
+        Update: {
+          created_at?: string
+          email_limit_per_hour?: number | null
+          id?: string
+          is_admin?: boolean | null
+          subscription_tier?:
+            | Database["public"]["Enums"]["subscription_tier"]
+            | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_admin: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      subscription_tier: "free" | "premium"
     }
     CompositeTypes: {
       [_ in never]: never
