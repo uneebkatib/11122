@@ -110,12 +110,12 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         <CardContent>
           <div className="flex flex-col space-y-4">
             <div className="flex items-center gap-2">
-              <Select value={email} onValueChange={setEmail}>
+              <Select value={email || undefined} onValueChange={setEmail}>
                 <SelectTrigger className="flex-1 bg-[#2D2D2D] border-0 text-white">
                   <SelectValue placeholder="Select an email" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value={email}>{email}</SelectItem>
+                  {email && <SelectItem value={email}>{email}</SelectItem>}
                 </SelectContent>
               </Select>
               <Button
@@ -167,3 +167,4 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     </div>
   );
 };
+
