@@ -1,7 +1,7 @@
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
+import Index from "./pages/index";
 import Login from "./pages/Login";
 import TenMinuteMail from "./pages/TenMinuteMail";
 import ThirtyMinuteMail from "./pages/ThirtyMinuteMail";
