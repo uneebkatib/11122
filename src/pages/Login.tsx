@@ -17,22 +17,46 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validateEmail = (email: string) => {
+    return String(email)
+      .toLowerCase()
+      .match(
+        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      );
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Validate email format
+      if (!validateEmail(email)) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      // Validate password
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters long");
+      }
+
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === "Invalid login credentials") {
+          throw new Error("Invalid email or password");
+        }
+        throw error;
+      }
 
+      // Success - redirect
       navigate("/");
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: "Login failed",
         description: error.message,
         variant: "destructive",
       });
@@ -46,8 +70,18 @@ const Login = () => {
     setLoading(true);
 
     try {
+      // Validate email format
+      if (!validateEmail(email)) {
+        throw new Error("Please enter a valid email address");
+      }
+
+      // Validate password
+      if (password.length < 6) {
+        throw new Error("Password must be at least 6 characters long");
+      }
+
       const { error, data } = await supabase.auth.signUp({
-        email,
+        email: email.trim(),
         password,
         options: {
           emailRedirectTo: window.location.origin,
@@ -56,11 +90,11 @@ const Login = () => {
 
       if (error) throw error;
 
-      // Check if the user was created successfully
+      // Check if user was created successfully
       if (data.user) {
         toast({
           title: "Success",
-          description: "Your account has been created! Check your email to confirm.",
+          description: "Check your email to confirm your account.",
         });
         
         // Clear the form
@@ -69,7 +103,7 @@ const Login = () => {
       }
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: "Signup failed",
         description: error.message,
         variant: "destructive",
       });
@@ -90,7 +124,7 @@ const Login = () => {
       if (error) throw error;
     } catch (error: any) {
       toast({
-        title: "Error",
+        title: "Login failed",
         description: error.message,
         variant: "destructive",
       });
@@ -101,7 +135,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">TempMail</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">JempMail</CardTitle>
         </CardHeader>
         <CardContent>
           <Tabs defaultValue="login" className="w-full">
@@ -192,6 +226,7 @@ const Login = () => {
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10"
                       required
+                      minLength={6}
                     />
                   </div>
                 </div>
