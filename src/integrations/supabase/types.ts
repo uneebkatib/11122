@@ -51,6 +51,36 @@ export type Database = {
         }
         Relationships: []
       }
+      emails: {
+        Row: {
+          body: string | null
+          from_email: string
+          id: string
+          is_read: boolean | null
+          received_at: string | null
+          subject: string | null
+          temp_email: string
+        }
+        Insert: {
+          body?: string | null
+          from_email: string
+          id?: string
+          is_read?: boolean | null
+          received_at?: string | null
+          subject?: string | null
+          temp_email: string
+        }
+        Update: {
+          body?: string | null
+          from_email?: string
+          id?: string
+          is_read?: boolean | null
+          received_at?: string | null
+          subject?: string | null
+          temp_email?: string
+        }
+        Relationships: []
+      }
       imap_configs: {
         Row: {
           created_at: string
