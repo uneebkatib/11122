@@ -9,6 +9,107 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      api_keys: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          key_hash: string
+          last_used_at: string | null
+          name: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash: string
+          last_used_at?: string | null
+          name: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          key_hash?: string
+          last_used_at?: string | null
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      attachments: {
+        Row: {
+          content_type: string
+          created_at: string
+          email_id: string
+          filename: string
+          id: string
+          size: number
+          storage_path: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          email_id: string
+          filename: string
+          id?: string
+          size: number
+          storage_path: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          email_id?: string
+          filename?: string
+          id?: string
+          size?: number
+          storage_path?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attachments_email_id_fkey"
+            columns: ["email_id"]
+            isOneToOne: false
+            referencedRelation: "emails"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      custom_domains: {
+        Row: {
+          created_at: string
+          domain: string
+          id: string
+          is_verified: boolean | null
+          user_id: string | null
+          verification_token: string
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          id?: string
+          is_verified?: boolean | null
+          user_id?: string | null
+          verification_token: string
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          id?: string
+          is_verified?: boolean | null
+          user_id?: string | null
+          verification_token?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string
@@ -27,6 +128,33 @@ export type Database = {
           domain?: string
           id?: string
           is_active?: boolean | null
+        }
+        Relationships: []
+      }
+      email_filters: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          filter_type: string
+          id: string
+          is_active: boolean | null
+          pattern: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          filter_type: string
+          id?: string
+          is_active?: boolean | null
+          pattern: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          filter_type?: string
+          id?: string
+          is_active?: boolean | null
+          pattern?: string
         }
         Relationships: []
       }
@@ -54,8 +182,10 @@ export type Database = {
       emails: {
         Row: {
           body: string | null
+          expires_at: string | null
           from_email: string
           id: string
+          is_expired: boolean | null
           is_read: boolean | null
           received_at: string | null
           subject: string | null
@@ -63,8 +193,10 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          expires_at?: string | null
           from_email: string
           id?: string
+          is_expired?: boolean | null
           is_read?: boolean | null
           received_at?: string | null
           subject?: string | null
@@ -72,8 +204,10 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          expires_at?: string | null
           from_email?: string
           id?: string
+          is_expired?: boolean | null
           is_read?: boolean | null
           received_at?: string | null
           subject?: string | null
