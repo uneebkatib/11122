@@ -1,4 +1,4 @@
-```typescript
+
 import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -207,4 +207,3 @@ export const CustomDomainManagement = () => {
     </div>
   );
 };
-```
