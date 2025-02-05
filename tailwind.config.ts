@@ -47,6 +47,12 @@ export default {
           foreground: "hsl(var(--accent-foreground))",
         },
       },
+      borderWidth: {
+        DEFAULT: "1px",
+      },
+      borderColor: {
+        DEFAULT: "hsl(var(--border))",
+      },
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -70,3 +76,4 @@ export default {
   },
   plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
