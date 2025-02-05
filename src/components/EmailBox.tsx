@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Copy, RefreshCw, Loader2, Mail, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -74,14 +75,15 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
     enabled: !!email,
     refetchInterval: 5000,
     retry: 3,
-    onError: (error) => {
-      console.error('Email fetch error:', error);
-      toast({
-        title: "Error fetching emails",
-        description: "Please try again later",
-        variant: "destructive",
-      });
-    },
+    meta: {
+      onError: () => {
+        toast({
+          title: "Error fetching emails",
+          description: "Please try again later",
+          variant: "destructive",
+        });
+      }
+    }
   });
 
   const generateRandomEmail = () => {
