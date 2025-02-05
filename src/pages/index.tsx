@@ -8,7 +8,7 @@ const Index = () => {
   console.log("Rendering Index page");
   
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-background">
       <Header />
       <EmailBox allowAnonymous={true} />
       <Features />
@@ -18,4 +18,3 @@ const Index = () => {
 };
 
 export default Index;
-
