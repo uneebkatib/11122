@@ -7,4 +7,3 @@
 #     try_files $uri $uri/ /test/11122/index.html;
 #     add_header Access-Control-Allow-Origin *;
 # }
-
