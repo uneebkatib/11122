@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Copy, RefreshCw, Loader2, Mail, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
@@ -22,9 +21,13 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .select('*')
         .eq('is_active', true);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching domains:', error);
+        throw error;
+      }
       return data || [];
-    }
+    },
+    retry: 3,
   });
 
   // Query custom domains for premium users
@@ -40,15 +43,21 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .eq('user_id', user.id)
         .eq('is_verified', true);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching custom domains:', error);
+        throw error;
+      }
       return data || [];
-    }
+    },
+    retry: 3,
   });
 
-  const { data: emails, isLoading: isLoadingEmails, refetch: refetchEmails } = useQuery({
+  const { data: emails, isLoading: isLoadingEmails, refetch: refetchEmails, error: emailError } = useQuery({
     queryKey: ['emails', email],
     queryFn: async () => {
       if (!email) return [];
+      
+      console.log('Fetching emails for:', email);
       const { data, error } = await supabase
         .from('emails')
         .select('*')
@@ -56,18 +65,24 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         .order('received_at', { ascending: false })
         .limit(1);
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching emails:', error);
+        throw error;
+      }
       return data as Email[];
     },
     enabled: !!email,
     refetchInterval: 5000,
+    retry: 3,
+    onError: (error) => {
+      console.error('Email fetch error:', error);
+      toast({
+        title: "Error fetching emails",
+        description: "Please try again later",
+        variant: "destructive",
+      });
+    },
   });
-
-  useEffect(() => {
-    if (adminDomains?.length && !email) {
-      generateRandomEmail();
-    }
-  }, [adminDomains, email]);
 
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
@@ -120,6 +135,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   useEffect(() => {
     if (!email) return;
 
+    console.log('Setting up realtime subscription for:', email);
     const channel = supabase
       .channel('emails-changes')
       .on(
@@ -131,6 +147,7 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
           filter: `temp_email=eq.${email}`,
         },
         (payload) => {
+          console.log('New email received:', payload);
           refetchEmails();
           toast({
             title: "New Email Received!",
@@ -138,9 +155,12 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up subscription');
       supabase.removeChannel(channel);
     };
   }, [email, refetchEmails]);
