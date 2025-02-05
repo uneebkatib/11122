@@ -3,7 +3,7 @@
 
 # Your Nginx configuration should include:
 # location /test/11122/ {
-#     alias /home/uneebkatib/public_html/test/11122/;
+#     alias /home/jempmail/public_html/test/11122/;
 #     try_files $uri $uri/ /test/11122/index.html;
 #     add_header Access-Control-Allow-Origin *;
 # }
