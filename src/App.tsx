@@ -14,7 +14,7 @@ const queryClient = new QueryClient();
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <div className="min-h-screen">
-      <BrowserRouter basename="/test/ephemeral-pigeon">
+      <BrowserRouter basename="/test/11122">
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />
