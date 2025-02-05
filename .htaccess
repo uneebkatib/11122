@@ -1,7 +1,7 @@
 
 <IfModule mod_rewrite.c>
   RewriteEngine On
-  RewriteBase /test/ephemeral-pigeon/
+  RewriteBase /test/11122/
   
   # If the requested resource exists as a file or directory, serve it directly
   RewriteCond %{REQUEST_FILENAME} !-f
