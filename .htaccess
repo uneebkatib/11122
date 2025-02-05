@@ -1,14 +1,14 @@
 
 <IfModule mod_rewrite.c>
-  RewriteEngine On
-  RewriteBase /test/11122/
-  
-  # If the requested resource exists as a file or directory, serve it directly
-  RewriteCond %{REQUEST_FILENAME} !-f
-  RewriteCond %{REQUEST_FILENAME} !-d
-  
-  # Otherwise, serve index.html
-  RewriteRule ^ index.html [L]
+    RewriteEngine On
+    RewriteBase /test/11122/
+    
+    # If the requested resource exists as a file or directory, serve it directly
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    
+    # Otherwise, serve index.html
+    RewriteRule ^ index.html [L]
 </IfModule>
 
 # Set proper MIME types
