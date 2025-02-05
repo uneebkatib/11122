@@ -1,21 +1,2 @@
 
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteBase /test/11122/
-    
-    # If the requested resource exists as a file or directory, serve it directly
-    RewriteCond %{REQUEST_FILENAME} !-f
-    RewriteCond %{REQUEST_FILENAME} !-d
-    
-    # Otherwise, serve index.html
-    RewriteRule ^ index.html [L]
-</IfModule>
-
-# Set proper MIME types
-AddType application/javascript .js
-AddType text/javascript .mjs
-AddType application/json .json
-AddType text/css .css
-
-# Enable CORS
-Header set Access-Control-Allow-Origin "*"
+# This file is not used when serving with Nginx
