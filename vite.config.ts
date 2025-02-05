@@ -10,13 +10,15 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     fs: {
-      strict: false
+      strict: false,
+      allow: ['..']
     }
   },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    }
+    },
+    extensions: ['.js', '.jsx', '.ts', '.tsx']
   },
   plugins: [
     react(),
