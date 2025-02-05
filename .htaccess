@@ -2,8 +2,8 @@
 # This file is not used when serving with Nginx
 
 # Your Nginx configuration should include:
-# location /test/11122/ {
-#     alias /home/jempmail/public_html/test/11122/;
-#     try_files $uri $uri/ /test/11122/index.html;
+# location / {
+#     alias /home/jempmail/public_html/;
+#     try_files $uri $uri/ /index.html;
 #     add_header Access-Control-Allow-Origin *;
 # }

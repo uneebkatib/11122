@@ -16,7 +16,7 @@ if (!root) {
   console.log("Root element found, mounting React app");
   createRoot(root).render(
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter basename="/test/11122">
+      <BrowserRouter>
         <App />
       </BrowserRouter>
     </QueryClientProvider>
