@@ -1,3 +1,4 @@
+
 import { Mail, User, LogIn, Settings as SettingsIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -12,12 +13,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
 
 export const Header = () => {
+  console.log("Rendering Header component");
   const navigate = useNavigate();
 
-  const { data: session } = useQuery({
+  const { data: session, isError: sessionError } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Fetching session");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Session error:", error);
+      }
       return session;
     }
   });
@@ -26,6 +32,7 @@ export const Header = () => {
     queryKey: ['profile', session?.user?.id],
     enabled: !!session?.user?.id,
     queryFn: async () => {
+      console.log("Fetching profile");
       const { data, error } = await supabase
         .from('profiles')
         .select('*, subscription_tier')
@@ -39,6 +46,14 @@ export const Header = () => {
       return data;
     }
   });
+
+  if (sessionError) {
+    console.error("Session query error");
+  }
+
+  if (profileError) {
+    console.error("Profile query error");
+  }
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
@@ -112,3 +127,4 @@ export const Header = () => {
     </header>
   );
 };
+

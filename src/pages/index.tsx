@@ -5,6 +5,8 @@ import { Features } from "@/components/Features";
 import { PricingPlans } from "@/components/PricingPlans";
 
 const Index = () => {
+  console.log("Rendering Index page");
+  
   return (
     <div className="min-h-screen bg-white">
       <Header />
@@ -16,3 +18,4 @@ const Index = () => {
 };
 
 export default Index;
+
