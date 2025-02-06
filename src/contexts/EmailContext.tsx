@@ -21,10 +21,32 @@ interface EmailContextType {
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
+const MAX_EMAILS = 3;
+
 export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
-  const [email, setEmail] = useState("");
-  const [previousEmails, setPreviousEmails] = useState<string[]>([]);
+  const [email, setEmail] = useState(() => {
+    const savedEmail = localStorage.getItem('currentEmail');
+    return savedEmail || "";
+  });
+  
+  const [previousEmails, setPreviousEmails] = useState<string[]>(() => {
+    const savedEmails = localStorage.getItem('previousEmails');
+    return savedEmails ? JSON.parse(savedEmails) : [];
+  });
+  
   const { toast } = useToast();
+
+  // Save current email to localStorage whenever it changes
+  useEffect(() => {
+    if (email) {
+      localStorage.setItem('currentEmail', email);
+    }
+  }, [email]);
+
+  // Save previous emails to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('previousEmails', JSON.stringify(previousEmails));
+  }, [previousEmails]);
 
   // Query active domains (public access enabled via RLS)
   const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
@@ -59,7 +81,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     },
     retry: 3,
     initialData: [], 
-    refetchInterval: 5000, // Retry every 5 seconds if no domains are found
+    refetchInterval: 5000,
   });
 
   // Query emails with auto-refresh and enhanced logging
@@ -94,10 +116,19 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
 
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
-      console.error('No domains available for email generation. Current domains:', adminDomains);
+      console.error('No domains available for email generation');
       toast({
         title: "Error",
         description: "No domains available. Please try again later.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (previousEmails.length >= MAX_EMAILS) {
+      toast({
+        title: "Limit Reached",
+        description: `You can only generate up to ${MAX_EMAILS} emails. Please delete an existing email first.`,
         variant: "destructive",
       });
       return;
@@ -109,8 +140,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     const newEmail = `${random}@${randomDomain.domain}`;
     
     // Add current email to previous emails if it exists
-    if (email) {
-      setPreviousEmails(prev => [email, ...prev.slice(0, 4)]); // Keep last 5 emails
+    if (email && !previousEmails.includes(email)) {
+      setPreviousEmails(prev => [email, ...prev].slice(0, MAX_EMAILS));
     }
     
     setEmail(newEmail);
@@ -134,7 +165,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Generate email immediately when domains are available
   useEffect(() => {
-    if (!email && adminDomains && adminDomains.length > 0) {
+    if (!email && adminDomains && adminDomains.length > 0 && previousEmails.length < MAX_EMAILS) {
       console.log('Generating initial email with domains:', adminDomains);
       generateRandomEmail();
     } else if (!email && !isLoadingAdminDomains && (!adminDomains || adminDomains.length === 0)) {
