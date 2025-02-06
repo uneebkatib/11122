@@ -4,6 +4,13 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Email } from "@/types/email";
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface EmailContextType {
   email: string;
@@ -15,12 +22,15 @@ interface EmailContextType {
   emails: Email[] | undefined;
   isLoadingEmails: boolean;
   refetchEmails: () => void;
+  previousEmails: string[];
+  setPreviousEmails: (emails: string[]) => void;
 }
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
 export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const [email, setEmail] = useState("");
+  const [previousEmails, setPreviousEmails] = useState<string[]>([]);
   const { toast } = useToast();
 
   // Query admin domains
@@ -77,6 +87,12 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     const random = Math.random().toString(36).substring(2, 10);
     const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
     const newEmail = `${random}@${randomDomain.domain}`;
+    
+    // Add current email to previous emails if it exists
+    if (email) {
+      setPreviousEmails(prev => [email, ...prev.slice(0, 4)]); // Keep last 5 emails
+    }
+    
     setEmail(newEmail);
     
     toast({
@@ -141,7 +157,9 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         isLoadingAdminDomains,
         emails,
         isLoadingEmails,
-        refetchEmails
+        refetchEmails,
+        previousEmails,
+        setPreviousEmails
       }}
     >
       {children}
