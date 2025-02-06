@@ -6,6 +6,9 @@ export interface Email {
   body: string;
   received_at: string;
   is_read: boolean;
+  email_type?: 'temporary' | 'custom';
+  created_by?: string;
+  created_at?: string;
 }
 
 export interface EmailBoxProps {
@@ -14,8 +17,10 @@ export interface EmailBoxProps {
 }
 
 export interface CustomEmailDialogProps {
-  domains: any[];
-  onCreateEmail: (username: string, domain: string) => void;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  domain: string;
+  onEmailCreated: (email: string) => void;
 }
 
 export interface EmailDisplayProps {

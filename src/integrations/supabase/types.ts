@@ -125,6 +125,36 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_emails: {
+        Row: {
+          created_at: string | null
+          domain: string
+          email_address: string
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          email_address: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          email_address?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       domains: {
         Row: {
           created_at: string
@@ -215,6 +245,9 @@ export type Database = {
       emails: {
         Row: {
           body: string | null
+          created_at: string | null
+          created_by: string | null
+          email_type: Database["public"]["Enums"]["email_type"] | null
           expires_at: string | null
           from_email: string
           id: string
@@ -226,6 +259,9 @@ export type Database = {
         }
         Insert: {
           body?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email_type?: Database["public"]["Enums"]["email_type"] | null
           expires_at?: string | null
           from_email: string
           id?: string
@@ -237,6 +273,9 @@ export type Database = {
         }
         Update: {
           body?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email_type?: Database["public"]["Enums"]["email_type"] | null
           expires_at?: string | null
           from_email?: string
           id?: string
@@ -541,6 +580,7 @@ export type Database = {
     }
     Enums: {
       domain_status: "pending" | "verified" | "failed"
+      email_type: "temporary" | "custom"
       mail_server_type: "smtp" | "imap" | "pop3"
       subscription_tier: "free" | "premium"
     }
