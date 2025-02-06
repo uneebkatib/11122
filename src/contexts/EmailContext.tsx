@@ -1,9 +1,9 @@
-
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Email } from "@/types/email";
+import { PremiumFeatures } from "@/components/email/PremiumFeatures";
 
 interface EmailContextType {
   email: string;
@@ -22,6 +22,9 @@ interface EmailContextType {
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
 const MAX_EMAILS = 3;
+const DAILY_EMAIL_LIMIT = 5;
+const DAILY_LIMIT_KEY = 'emailGenerationCount';
+const LAST_RESET_DATE_KEY = 'lastResetDate';
 
 export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const [email, setEmail] = useState(() => {
@@ -33,8 +36,33 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     const savedEmails = localStorage.getItem('previousEmails');
     return savedEmails ? JSON.parse(savedEmails) : [];
   });
+
+  const [showPremiumDialog, setShowPremiumDialog] = useState(false);
   
   const { toast } = useToast();
+
+  // Initialize daily count
+  const [dailyCount, setDailyCount] = useState(() => {
+    const count = localStorage.getItem(DAILY_LIMIT_KEY);
+    return count ? parseInt(count) : 0;
+  });
+
+  // Check and reset daily count if needed
+  useEffect(() => {
+    const lastResetDate = localStorage.getItem(LAST_RESET_DATE_KEY);
+    const today = new Date().toDateString();
+
+    if (lastResetDate !== today) {
+      setDailyCount(0);
+      localStorage.setItem(DAILY_LIMIT_KEY, '0');
+      localStorage.setItem(LAST_RESET_DATE_KEY, today);
+    }
+  }, []);
+
+  // Save daily count to localStorage
+  useEffect(() => {
+    localStorage.setItem(DAILY_LIMIT_KEY, dailyCount.toString());
+  }, [dailyCount]);
 
   // Save current email to localStorage whenever it changes
   useEffect(() => {
@@ -133,6 +161,16 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       });
       return;
     }
+
+    if (dailyCount >= DAILY_EMAIL_LIMIT) {
+      toast({
+        title: "Daily Limit Reached",
+        description: "You've reached your daily email generation limit. Upgrade to premium for unlimited emails!",
+        variant: "destructive",
+      });
+      setShowPremiumDialog(true);
+      return;
+    }
     
     const random = Math.random().toString(36).substring(2, 10);
     const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
@@ -145,6 +183,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     setEmail(newEmail);
+    setDailyCount(prev => prev + 1);
     console.log('Generated new email:', newEmail);
     
     toast({
@@ -224,6 +263,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
+      <PremiumFeatures open={showPremiumDialog} onOpenChange={setShowPremiumDialog} />
     </EmailContext.Provider>
   );
 };
