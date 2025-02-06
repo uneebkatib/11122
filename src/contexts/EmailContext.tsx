@@ -30,11 +30,12 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
     queryKey: ['adminDomains'],
     queryFn: async () => {
-      console.log('Fetching domains');
+      console.log('Starting domain fetch...');
       const { data, error } = await supabase
         .from('domains')
         .select('*')
         .eq('is_active', true)
+        .eq('verification_status', 'verified')  // Only get verified domains
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -85,7 +86,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
 
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
-      console.error('No domains available');
+      console.error('No domains available. Current domains:', adminDomains);
       toast({
         title: "Error",
         description: "No domains available. Please try again later.",
