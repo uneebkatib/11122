@@ -35,8 +35,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         .from('domains')
         .select('*')
         .eq('is_active', true)
-        .eq('verification_status', 'verified')  // Only get verified domains
-        .eq('is_global', true)  // Only get global domains
+        .eq('verification_status', 'verified')
+        .eq('is_global', true)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -49,11 +49,16 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         return [];
       }
       
-      console.log('Fetched domains:', data);
-      return data || [];
+      if (!data || data.length === 0) {
+        console.warn('No domains found or domains array is empty:', data);
+        return [];
+      }
+
+      console.log('Successfully fetched domains:', data);
+      return data;
     },
     retry: 3,
-    initialData: [], // Provide initial data to prevent undefined state
+    initialData: [], 
     refetchOnMount: true,
   });
 
@@ -87,7 +92,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
 
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
-      console.error('No domains available. Current domains:', adminDomains);
+      console.error('No domains available for email generation. Current domains:', adminDomains);
       toast({
         title: "Error",
         description: "No domains available. Please try again later.",
@@ -98,6 +103,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     
     const random = Math.random().toString(36).substring(2, 10);
     const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
+    console.log('Selected domain for new email:', randomDomain);
     const newEmail = `${random}@${randomDomain.domain}`;
     
     // Add current email to previous emails if it exists
@@ -106,6 +112,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     setEmail(newEmail);
+    console.log('Generated new email:', newEmail);
     
     toast({
       title: "New Email Created",
@@ -128,8 +135,10 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     if (!email && adminDomains && adminDomains.length > 0) {
       console.log('Generating initial email with domains:', adminDomains);
       generateRandomEmail();
+    } else if (!email && !isLoadingAdminDomains && (!adminDomains || adminDomains.length === 0)) {
+      console.warn('No domains available for initial email generation');
     }
-  }, [adminDomains, email]);
+  }, [adminDomains, email, isLoadingAdminDomains]);
 
   // Setup realtime subscription
   useEffect(() => {
@@ -189,4 +198,3 @@ export const useEmail = () => {
   }
   return context;
 };
-
