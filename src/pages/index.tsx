@@ -3,6 +3,7 @@ import { Header } from "@/components/Header";
 import { EmailBox } from "@/components/EmailBox";
 import { Features } from "@/components/Features";
 import { PricingPlans } from "@/components/PricingPlans";
+import { EmailProvider } from "@/contexts/EmailContext";
 
 const Index = () => {
   console.log("Rendering Index page");
@@ -10,7 +11,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <EmailBox allowAnonymous={true} />
+      <EmailProvider>
+        <EmailBox allowAnonymous={true} />
+      </EmailProvider>
       <Features />
       <PricingPlans />
     </div>
