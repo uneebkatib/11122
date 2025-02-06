@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 
 interface CustomEmailDialogProps {
   open: boolean;
@@ -32,6 +33,15 @@ export const CustomEmailDialog = ({
   const { toast } = useToast();
   const navigate = useNavigate();
 
+  // Get the current session using React Query
+  const { data: session } = useQuery({
+    queryKey: ['session'],
+    queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      return session;
+    }
+  });
+
   const handleCreateEmail = async () => {
     if (!username) {
       toast({
@@ -42,21 +52,20 @@ export const CustomEmailDialog = ({
       return;
     }
 
+    // Check authentication before proceeding
+    if (!session) {
+      toast({
+        title: "Authentication Required",
+        description: "Please sign in to create a custom email",
+        variant: "destructive",
+      });
+      onOpenChange(false);
+      navigate("/login");
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast({
-          title: "Authentication Required",
-          description: "Please sign in to create a custom email",
-          variant: "destructive",
-        });
-        onOpenChange(false);
-        navigate("/login");
-        return;
-      }
-
       const emailAddress = `${username}@${domain}`;
       
       // Save custom email
@@ -70,10 +79,10 @@ export const CustomEmailDialog = ({
 
       if (error) {
         console.error('Error creating custom email:', error);
-        if (error.code === '42501') {
+        if (error.code === '42501' || error.message?.includes('authentication')) {
           toast({
-            title: "Authentication Error",
-            description: "Please sign in to create a custom email",
+            title: "Session Expired",
+            description: "Your session has expired. Please sign in again.",
             variant: "destructive",
           });
           onOpenChange(false);
@@ -94,7 +103,7 @@ export const CustomEmailDialog = ({
       console.error('Error in handleCreateEmail:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create custom email",
+        description: "Failed to create custom email. Please try again.",
         variant: "destructive",
       });
     } finally {
