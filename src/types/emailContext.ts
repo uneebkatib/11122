@@ -13,4 +13,5 @@ export interface EmailContextType {
   refetchEmails: () => void;
   previousEmails: string[];
   setPreviousEmails: (emails: string[]) => void;
+  checkLimits: () => boolean;
 }

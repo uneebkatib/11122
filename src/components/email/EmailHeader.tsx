@@ -1,7 +1,7 @@
 
 import { Trash2, RefreshCcw, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEmail, MAX_EMAILS } from "@/contexts/EmailContext";
+import { useEmail } from "@/contexts/EmailContext";
 import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
@@ -18,7 +18,8 @@ export const EmailHeader = () => {
     isLoadingAdminDomains,
     previousEmails,
     setEmail,
-    adminDomains
+    adminDomains,
+    checkLimits
   } = useEmail();
 
   const { toast } = useToast();
@@ -26,12 +27,7 @@ export const EmailHeader = () => {
   const handleDelete = () => {
     if (!email) return;
 
-    if (previousEmails.length >= MAX_EMAILS) {
-      toast({
-        title: "Email Limit Reached",
-        description: "You've reached the maximum number of emails. Please delete an existing email first.",
-        variant: "destructive",
-      });
+    if (checkLimits()) {
       return;
     }
 

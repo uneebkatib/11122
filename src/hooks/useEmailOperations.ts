@@ -36,6 +36,29 @@ export const useEmailOperations = (
     }
   }, []);
 
+  const checkLimits = () => {
+    if (previousEmails.length >= MAX_EMAILS) {
+      toast({
+        title: "Limit Reached",
+        description: `You can only generate up to ${MAX_EMAILS} emails. Please delete an existing email first.`,
+        variant: "destructive",
+      });
+      return true;
+    }
+
+    if (dailyCount >= DAILY_EMAIL_LIMIT) {
+      toast({
+        title: "Daily Limit Reached",
+        description: "You've reached your daily email generation limit. Upgrade to premium for unlimited emails!",
+        variant: "destructive",
+      });
+      setShowPremiumDialog(true);
+      return true;
+    }
+
+    return false;
+  };
+
   const generateRandomEmail = () => {
     if (!adminDomains?.length) {
       console.error('No domains available for email generation');
@@ -47,22 +70,7 @@ export const useEmailOperations = (
       return;
     }
 
-    if (previousEmails.length >= MAX_EMAILS) {
-      toast({
-        title: "Limit Reached",
-        description: `You can only generate up to ${MAX_EMAILS} emails. Please delete an existing email first.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (dailyCount >= DAILY_EMAIL_LIMIT) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've reached your daily email generation limit. Upgrade to premium for unlimited emails!",
-        variant: "destructive",
-      });
-      setShowPremiumDialog(true);
+    if (checkLimits()) {
       return;
     }
     
@@ -71,9 +79,10 @@ export const useEmailOperations = (
     console.log('Selected domain for new email:', randomDomain);
     const newEmail = `${random}@${randomDomain.domain}`;
     
-    // Add current email to previous emails if it exists
-    if (email && !previousEmails.includes(email)) {
-      setPreviousEmails(prev => [email, ...prev].slice(0, MAX_EMAILS));
+    // Update previous emails list
+    if (email) {
+      const updatedEmails = [email, ...previousEmails].slice(0, MAX_EMAILS);
+      setPreviousEmails(updatedEmails);
     }
     
     setEmail(newEmail);
@@ -99,6 +108,7 @@ export const useEmailOperations = (
   return {
     generateRandomEmail,
     copyEmail,
-    dailyCount
+    dailyCount,
+    checkLimits
   };
 };
