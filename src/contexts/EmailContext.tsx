@@ -1,30 +1,15 @@
+
 import { createContext, useContext, useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useQuery } from "@tanstack/react-query";
-import { useToast } from "@/hooks/use-toast";
-import { Email } from "@/types/email";
 import { PremiumFeatures } from "@/components/email/PremiumFeatures";
-
-interface EmailContextType {
-  email: string;
-  setEmail: (email: string) => void;
-  generateRandomEmail: () => void;
-  copyEmail: () => void;
-  adminDomains: any[];
-  isLoadingAdminDomains: boolean;
-  emails: Email[] | undefined;
-  isLoadingEmails: boolean;
-  refetchEmails: () => void;
-  previousEmails: string[];
-  setPreviousEmails: (emails: string[]) => void;
-}
+import { useEmailQueries } from "@/hooks/useEmailQueries";
+import { useEmailOperations } from "@/hooks/useEmailOperations";
+import { EmailContextType } from "@/types/emailContext";
+import { MAX_EMAILS } from "@/constants/emailLimits";
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
-export const MAX_EMAILS = 3;
-export const DAILY_EMAIL_LIMIT = 5;
-export const DAILY_LIMIT_KEY = 'emailGenerationCount';
-export const LAST_RESET_DATE_KEY = 'lastResetDate';
+export { MAX_EMAILS } from "@/constants/emailLimits";
 
 export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const [email, setEmail] = useState(() => {
@@ -38,181 +23,49 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-  
-  const { toast } = useToast();
 
-  // Initialize daily count
-  const [dailyCount, setDailyCount] = useState(() => {
-    const count = localStorage.getItem(DAILY_LIMIT_KEY);
-    return count ? parseInt(count) : 0;
-  });
+  // Get email queries
+  const { 
+    adminDomains, 
+    isLoadingAdminDomains, 
+    emails, 
+    isLoadingEmails, 
+    refetchEmails 
+  } = useEmailQueries(email);
 
-  // Check and reset daily count if needed
-  useEffect(() => {
-    const lastResetDate = localStorage.getItem(LAST_RESET_DATE_KEY);
-    const today = new Date().toDateString();
+  // Get email operations
+  const { generateRandomEmail, copyEmail } = useEmailOperations(
+    adminDomains,
+    email,
+    setEmail,
+    previousEmails,
+    setPreviousEmails,
+    setShowPremiumDialog
+  );
 
-    if (lastResetDate !== today) {
-      setDailyCount(0);
-      localStorage.setItem(DAILY_LIMIT_KEY, '0');
-      localStorage.setItem(LAST_RESET_DATE_KEY, today);
-    }
-  }, []);
-
-  // Save daily count to localStorage
-  useEffect(() => {
-    localStorage.setItem(DAILY_LIMIT_KEY, dailyCount.toString());
-  }, [dailyCount]);
-
-  // Save current email to localStorage whenever it changes
+  // Save current email to localStorage
   useEffect(() => {
     if (email) {
       localStorage.setItem('currentEmail', email);
     }
   }, [email]);
 
-  // Save previous emails to localStorage whenever they change
+  // Save previous emails to localStorage
   useEffect(() => {
     localStorage.setItem('previousEmails', JSON.stringify(previousEmails));
   }, [previousEmails]);
 
-  // Query active domains (public access enabled via RLS)
-  const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
-    queryKey: ['adminDomains'],
-    queryFn: async () => {
-      console.log('Starting domain fetch...');
-      const { data, error } = await supabase
-        .from('domains')
-        .select('*')
-        .eq('is_active', true)
-        .eq('verification_status', 'verified')
-        .eq('is_global', true)
-        .order('created_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching domains:', error);
-        toast({
-          title: "Error",
-          description: "Could not fetch domains. Please try again later.",
-          variant: "destructive",
-        });
-        return [];
-      }
-      
-      if (!data || data.length === 0) {
-        console.warn('No domains found or domains array is empty:', data);
-        return [];
-      }
-
-      console.log('Successfully fetched domains:', data);
-      return data;
-    },
-    retry: 3,
-    initialData: [], 
-    refetchInterval: 5000,
-  });
-
-  // Query emails with auto-refresh and enhanced logging
-  const { data: emails, isLoading: isLoadingEmails, refetch: refetchEmails } = useQuery({
-    queryKey: ['emails', email],
-    queryFn: async () => {
-      if (!email) return [];
-      
-      console.log('Fetching emails for:', email);
-      const { data, error } = await supabase
-        .from('emails')
-        .select('*')
-        .eq('temp_email', email)
-        .order('received_at', { ascending: false });
-      
-      if (error) {
-        console.error('Error fetching emails:', error);
-        toast({
-          title: "Error",
-          description: "Could not fetch emails. Please try again later.",
-          variant: "destructive",
-        });
-        return [];
-      }
-
-      console.log('Emails fetched successfully:', data);
-      return data as Email[];
-    },
-    enabled: !!email,
-    refetchInterval: 5000,
-  });
-
-  const generateRandomEmail = () => {
-    if (!adminDomains?.length) {
-      console.error('No domains available for email generation');
-      toast({
-        title: "Error",
-        description: "No domains available. Please try again later.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (previousEmails.length >= MAX_EMAILS) {
-      toast({
-        title: "Limit Reached",
-        description: `You can only generate up to ${MAX_EMAILS} emails. Please delete an existing email first.`,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (dailyCount >= DAILY_EMAIL_LIMIT) {
-      toast({
-        title: "Daily Limit Reached",
-        description: "You've reached your daily email generation limit. Upgrade to premium for unlimited emails!",
-        variant: "destructive",
-      });
-      setShowPremiumDialog(true);
-      return;
-    }
-    
-    const random = Math.random().toString(36).substring(2, 10);
-    const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
-    console.log('Selected domain for new email:', randomDomain);
-    const newEmail = `${random}@${randomDomain.domain}`;
-    
-    // Add current email to previous emails if it exists
-    if (email && !previousEmails.includes(email)) {
-      setPreviousEmails(prev => [email, ...prev].slice(0, MAX_EMAILS));
-    }
-    
-    setEmail(newEmail);
-    setDailyCount(prev => prev + 1);
-    console.log('Generated new email:', newEmail);
-    
-    toast({
-      title: "New Email Created",
-      description: newEmail,
-    });
-  };
-
-  const copyEmail = () => {
-    if (!email) return;
-    
-    navigator.clipboard.writeText(email);
-    toast({
-      title: "Copied!",
-      description: "Email address copied to clipboard",
-    });
-  };
-
   // Generate email immediately when domains are available
   useEffect(() => {
-    if (!email && adminDomains && adminDomains.length > 0 && previousEmails.length < MAX_EMAILS) {
+    if (!email && adminDomains.length > 0 && previousEmails.length < MAX_EMAILS) {
       console.log('Generating initial email with domains:', adminDomains);
       generateRandomEmail();
-    } else if (!email && !isLoadingAdminDomains && (!adminDomains || adminDomains.length === 0)) {
+    } else if (!email && !isLoadingAdminDomains && adminDomains.length === 0) {
       console.warn('No domains available for initial email generation');
     }
   }, [adminDomains, email, isLoadingAdminDomains]);
 
-  // Setup realtime subscription with enhanced logging
+  // Setup realtime subscription
   useEffect(() => {
     if (!email) return;
 
@@ -230,10 +83,6 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         (payload) => {
           console.log('New email received:', payload);
           refetchEmails();
-          toast({
-            title: "New Email Received!",
-            description: `From: ${payload.new.from_email}`,
-          });
         }
       )
       .subscribe((status) => {
@@ -253,7 +102,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         setEmail, 
         generateRandomEmail, 
         copyEmail,
-        adminDomains: adminDomains || [],
+        adminDomains,
         isLoadingAdminDomains,
         emails,
         isLoadingEmails,
