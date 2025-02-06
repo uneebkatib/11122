@@ -6,12 +6,10 @@ import { EmailProvider } from "@/contexts/EmailContext";
 import { EmailHeader } from "./email/EmailHeader";
 import { EmailInbox } from "./email/EmailInbox";
 import { PremiumFeatures } from "./email/PremiumFeatures";
-import { LoginDialog } from "./auth/LoginDialog";
 import { EmailBoxProps } from "@/types/email";
 
 export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
-  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   return (
     <EmailProvider>
@@ -40,15 +38,6 @@ export const EmailBox = ({ duration = 600 }: EmailBoxProps) => {
         <PremiumFeatures 
           open={showPremiumDialog} 
           onOpenChange={setShowPremiumDialog}
-          onUpgradeClick={() => {
-            setShowPremiumDialog(false);
-            setShowLoginDialog(true);
-          }}
-        />
-
-        <LoginDialog 
-          open={showLoginDialog} 
-          onOpenChange={setShowLoginDialog}
         />
       </div>
     </EmailProvider>

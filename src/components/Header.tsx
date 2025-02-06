@@ -11,10 +11,12 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
+import { LoginDialog } from "./auth/LoginDialog";
+import { useState } from "react";
 
 export const Header = () => {
-  console.log("Rendering Header component");
   const navigate = useNavigate();
+  const [showLoginDialog, setShowLoginDialog] = useState(false);
 
   const { data: session, isError: sessionError } = useQuery({
     queryKey: ['session'],
@@ -66,7 +68,7 @@ export const Header = () => {
         <div className="flex items-center justify-between">
           <Link to="/" className="flex items-center space-x-2">
             <Mail className="h-6 w-6 text-primary" />
-            <span className="text-xl font-semibold">JempMail</span>
+            <span className="text-xl font-semibold">TempMail</span>
           </Link>
           
           <nav className="flex items-center space-x-4">
@@ -116,15 +118,24 @@ export const Header = () => {
                 </DropdownMenu>
               </>
             ) : (
-              <Button onClick={() => navigate('/login')} variant="outline">
-                <LogIn className="h-4 w-4 mr-2" />
-                Sign In
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button onClick={() => setShowLoginDialog(true)} variant="outline">
+                  <LogIn className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+                <Button onClick={() => navigate('/login')} variant="ghost" className="hidden md:flex">
+                  Full Page Login
+                </Button>
+              </div>
             )}
           </nav>
         </div>
       </div>
+
+      <LoginDialog 
+        open={showLoginDialog} 
+        onOpenChange={setShowLoginDialog}
+      />
     </header>
   );
 };
-

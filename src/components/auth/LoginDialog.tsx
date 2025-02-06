@@ -4,11 +4,13 @@ import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogDescription,
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/integrations/supabase/client";
@@ -24,6 +26,7 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -84,11 +87,19 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
     }
   };
 
+  const goToFullPage = () => {
+    onOpenChange(false);
+    navigate("/login");
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>Welcome to TempMail</DialogTitle>
+          <DialogDescription>
+            Login or create an account to access premium features
+          </DialogDescription>
         </DialogHeader>
         
         <Tabs defaultValue="login" className="w-full">
@@ -174,6 +185,12 @@ export const LoginDialog = ({ open, onOpenChange }: LoginDialogProps) => {
             </form>
           </TabsContent>
         </Tabs>
+
+        <div className="mt-4 text-center">
+          <Button variant="link" onClick={goToFullPage} className="text-sm">
+            Go to full login page
+          </Button>
+        </div>
       </DialogContent>
     </Dialog>
   );
