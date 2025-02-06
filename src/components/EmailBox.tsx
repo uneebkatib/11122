@@ -7,7 +7,7 @@ import { EmailInbox } from "./email/EmailInbox";
 import { PremiumFeatures } from "./email/PremiumFeatures";
 import { CustomEmailDialog } from "./email/CustomEmailDialog";
 import { EmailBoxProps } from "@/types/email";
-import { EmailProvider } from "@/contexts/EmailContext";
+import { EmailProvider, useEmail } from "@/contexts/EmailContext";
 
 export const EmailBox = ({ duration = 600, allowAnonymous = false }: EmailBoxProps) => {
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
