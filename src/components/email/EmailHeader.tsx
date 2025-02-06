@@ -58,10 +58,10 @@ export const EmailHeader = () => {
         
         <div className="flex-1 mx-4 text-center font-mono text-lg text-gray-700 truncate">
           {isLoadingAdminDomains ? (
-            "Loading..."
+            "Loading domains..."
           ) : !adminDomains?.length ? (
             "No domains available"
-          ) : email || "Generating email..."}
+          ) : email || "Creating new email..."}
         </div>
 
         <Button 

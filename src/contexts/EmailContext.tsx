@@ -26,7 +26,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const [previousEmails, setPreviousEmails] = useState<string[]>([]);
   const { toast } = useToast();
 
-  // Query admin domains
+  // Query active domains (public access enabled via RLS)
   const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
     queryKey: ['adminDomains'],
     queryFn: async () => {
@@ -34,7 +34,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       const { data, error } = await supabase
         .from('domains')
         .select('*')
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
       
       if (error) {
         console.error('Error fetching domains:', error);
@@ -45,6 +46,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         });
         return [];
       }
+      
+      console.log('Fetched domains:', data);
       return data || [];
     },
     retry: 3,
@@ -81,8 +84,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const generateRandomEmail = () => {
-    const domains = adminDomains || [];
-    if (!domains.length) {
+    if (!adminDomains?.length) {
       console.error('No domains available');
       toast({
         title: "Error",
@@ -93,7 +95,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     const random = Math.random().toString(36).substring(2, 10);
-    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
+    const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
     const newEmail = `${random}@${randomDomain.domain}`;
     
     // Add current email to previous emails if it exists
@@ -119,13 +121,13 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  // Generate email immediately if domains are available and no email exists
+  // Generate email immediately when domains are available
   useEffect(() => {
     if (!email && adminDomains && adminDomains.length > 0) {
       console.log('Generating initial email with domains:', adminDomains);
       generateRandomEmail();
     }
-  }, [adminDomains]);
+  }, [adminDomains, email]);
 
   // Setup realtime subscription
   useEffect(() => {
@@ -164,7 +166,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         setEmail, 
         generateRandomEmail, 
         copyEmail,
-        adminDomains: adminDomains || [],  // Ensure we never pass undefined
+        adminDomains: adminDomains || [],
         isLoadingAdminDomains,
         emails,
         isLoadingEmails,
