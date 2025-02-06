@@ -20,6 +20,25 @@ export const EmailHeader = () => {
     adminDomains
   } = useEmail();
 
+  const { toast } = useToast();
+
+  const handleDelete = () => {
+    if (!email) return;
+
+    if (previousEmails.length >= MAX_EMAILS) {
+      toast({
+        title: "Email Limit Reached",
+        description: "You've reached the maximum number of emails. Please delete an existing email first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Generate a new email immediately after deletion
+    setEmail("");
+    generateRandomEmail();
+  };
+
   return (
     <div className="relative w-full max-w-2xl mx-auto">
       <div className="bg-white rounded-full shadow-lg flex items-center justify-between p-2 px-6">
@@ -39,7 +58,7 @@ export const EmailHeader = () => {
             variant="ghost"
             size="icon"
             className="rounded-full"
-            onClick={() => setEmail("")}
+            onClick={handleDelete}
             disabled={!email}
           >
             <Trash2 className="h-5 w-5 text-gray-500" />
@@ -71,9 +90,9 @@ export const EmailHeader = () => {
         
         <div className="flex-1 mx-4 text-center font-mono text-lg text-gray-700 truncate">
           {isLoadingAdminDomains ? (
-            "Loading domains..."
+            "Please wait..."
           ) : !adminDomains?.length ? (
-            "No domains available"
+            "Please wait..."
           ) : email || "Click the refresh button to generate a new email"}
         </div>
 

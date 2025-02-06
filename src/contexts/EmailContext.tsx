@@ -21,10 +21,10 @@ interface EmailContextType {
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
-const MAX_EMAILS = 3;
-const DAILY_EMAIL_LIMIT = 5;
-const DAILY_LIMIT_KEY = 'emailGenerationCount';
-const LAST_RESET_DATE_KEY = 'lastResetDate';
+export const MAX_EMAILS = 3;
+export const DAILY_EMAIL_LIMIT = 5;
+export const DAILY_LIMIT_KEY = 'emailGenerationCount';
+export const LAST_RESET_DATE_KEY = 'lastResetDate';
 
 export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const [email, setEmail] = useState(() => {
