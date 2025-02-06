@@ -62,7 +62,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     refetchInterval: 5000, // Retry every 5 seconds if no domains are found
   });
 
-  // Query emails with auto-refresh
+  // Query emails with auto-refresh and enhanced logging
   const { data: emails, isLoading: isLoadingEmails, refetch: refetchEmails } = useQuery({
     queryKey: ['emails', email],
     queryFn: async () => {
@@ -84,6 +84,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         });
         return [];
       }
+
+      console.log('Emails fetched successfully:', data);
       return data as Email[];
     },
     enabled: !!email,
@@ -140,10 +142,11 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, [adminDomains, email, isLoadingAdminDomains]);
 
-  // Setup realtime subscription
+  // Setup realtime subscription with enhanced logging
   useEffect(() => {
     if (!email) return;
 
+    console.log('Setting up realtime subscription for:', email);
     const channel = supabase
       .channel('emails-changes')
       .on(
@@ -163,9 +166,12 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
           });
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log('Realtime subscription status:', status);
+      });
 
     return () => {
+      console.log('Cleaning up realtime subscription');
       supabase.removeChannel(channel);
     };
   }, [email, refetchEmails]);
