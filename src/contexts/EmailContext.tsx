@@ -36,6 +36,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         .select('*')
         .eq('is_active', true)
         .eq('verification_status', 'verified')  // Only get verified domains
+        .eq('is_global', true)  // Only get global domains
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -188,3 +189,4 @@ export const useEmail = () => {
   }
   return context;
 };
+
