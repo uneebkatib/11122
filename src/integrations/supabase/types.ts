@@ -244,46 +244,61 @@ export type Database = {
       }
       emails: {
         Row: {
+          attachments: Json | null
           body: string | null
           created_at: string | null
           created_by: string | null
           email_type: Database["public"]["Enums"]["email_type"] | null
           expires_at: string | null
           from_email: string
+          headers: Json | null
+          html_body: string | null
           id: string
           is_expired: boolean | null
           is_read: boolean | null
+          message_id: string | null
           received_at: string | null
           subject: string | null
           temp_email: string
+          to_email: string | null
         }
         Insert: {
+          attachments?: Json | null
           body?: string | null
           created_at?: string | null
           created_by?: string | null
           email_type?: Database["public"]["Enums"]["email_type"] | null
           expires_at?: string | null
           from_email: string
+          headers?: Json | null
+          html_body?: string | null
           id?: string
           is_expired?: boolean | null
           is_read?: boolean | null
+          message_id?: string | null
           received_at?: string | null
           subject?: string | null
           temp_email: string
+          to_email?: string | null
         }
         Update: {
+          attachments?: Json | null
           body?: string | null
           created_at?: string | null
           created_by?: string | null
           email_type?: Database["public"]["Enums"]["email_type"] | null
           expires_at?: string | null
           from_email?: string
+          headers?: Json | null
+          html_body?: string | null
           id?: string
           is_expired?: boolean | null
           is_read?: boolean | null
+          message_id?: string | null
           received_at?: string | null
           subject?: string | null
           temp_email?: string
+          to_email?: string | null
         }
         Relationships: []
       }
@@ -561,6 +576,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          payload: Json
+          processed: boolean | null
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          payload: Json
+          processed?: boolean | null
+          provider?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          processed?: boolean | null
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
     }
     Views: {
