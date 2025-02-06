@@ -6,6 +6,7 @@ import { EmailHeader } from "./email/EmailHeader";
 import { EmailInbox } from "./email/EmailInbox";
 import { PremiumFeatures } from "./email/PremiumFeatures";
 import { EmailBoxProps } from "@/types/email";
+import { EmailProvider } from "@/contexts/EmailContext";
 
 export const EmailBox = ({ duration = 600, allowAnonymous = false }: EmailBoxProps) => {
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
@@ -17,8 +18,10 @@ export const EmailBox = ({ duration = 600, allowAnonymous = false }: EmailBoxPro
           Your Temporary Email Address
         </h1>
 
-        <EmailHeader />
-        <EmailInbox />
+        <EmailProvider>
+          <EmailHeader />
+          <EmailInbox />
+        </EmailProvider>
         
         <div className="text-center">
           <Button
