@@ -1,7 +1,8 @@
 
 import { Trash2, RefreshCcw, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEmail } from "@/contexts/EmailContext";
+import { useEmail, MAX_EMAILS } from "@/contexts/EmailContext";
+import { useToast } from "@/hooks/use-toast";
 import {
   DropdownMenu,
   DropdownMenuContent,
