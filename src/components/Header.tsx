@@ -11,7 +11,6 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate, Link } from "react-router-dom";
-import { useState } from "react";
 
 export const Header = () => {
   const navigate = useNavigate();
@@ -19,11 +18,7 @@ export const Header = () => {
   const { data: session, isError: sessionError } = useQuery({
     queryKey: ['session'],
     queryFn: async () => {
-      console.log("Fetching session");
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error("Session error:", error);
-      }
+      const { data: { session } } = await supabase.auth.getSession();
       return session;
     }
   });
@@ -32,7 +27,6 @@ export const Header = () => {
     queryKey: ['profile', session?.user?.id],
     enabled: !!session?.user?.id,
     queryFn: async () => {
-      console.log("Fetching profile");
       const { data, error } = await supabase
         .from('profiles')
         .select('*, subscription_tier')
@@ -47,17 +41,14 @@ export const Header = () => {
     }
   });
 
-  if (sessionError) {
-    console.error("Session query error");
-  }
-
-  if (profileError) {
-    console.error("Profile query error");
-  }
-
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    navigate('/');
+    try {
+      await supabase.auth.signOut();
+      // After signing out, immediately navigate to home
+      navigate('/');
+    } catch (error) {
+      console.error('Logout error:', error);
+    }
   };
 
   return (

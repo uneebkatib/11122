@@ -11,50 +11,30 @@ import { Mail, Lock } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  // Pre-fill admin credentials
+  const [email, setEmail] = useState("katib@jempmail.com");
+  const [password, setPassword] = useState("Informbay@1");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const validateEmail = (email: string) => {
-    return String(email)
-      .toLowerCase()
-      .match(
-        /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|.(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-      );
-  };
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return; // Prevent double submission
     setLoading(true);
 
     try {
-      // Validate email format
-      if (!validateEmail(email)) {
-        throw new Error("Please enter a valid email address");
-      }
-
-      // Validate password
-      if (password.length < 6) {
-        throw new Error("Password must be at least 6 characters long");
-      }
-
       const { error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
 
-      if (error) {
-        if (error.message === "Invalid login credentials") {
-          throw new Error("Invalid email or password");
-        }
-        throw error;
-      }
+      if (error) throw error;
 
-      // Success - redirect
+      // Success - redirect immediately
       navigate("/");
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Login failed",
         description: error.message,
@@ -67,20 +47,11 @@ const Login = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
     setLoading(true);
 
     try {
-      // Validate email format
-      if (!validateEmail(email)) {
-        throw new Error("Please enter a valid email address");
-      }
-
-      // Validate password
-      if (password.length < 6) {
-        throw new Error("Password must be at least 6 characters long");
-      }
-
-      const { error, data } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
@@ -90,18 +61,15 @@ const Login = () => {
 
       if (error) throw error;
 
-      // Check if user was created successfully
-      if (data.user) {
-        toast({
-          title: "Success",
-          description: "Check your email to confirm your account.",
-        });
-        
-        // Clear the form
-        setEmail("");
-        setPassword("");
-      }
+      toast({
+        title: "Success",
+        description: "Check your email to confirm your account.",
+      });
+      
+      setEmail("");
+      setPassword("");
     } catch (error: any) {
+      console.error('Signup error:', error);
       toast({
         title: "Signup failed",
         description: error.message,
@@ -123,6 +91,7 @@ const Login = () => {
 
       if (error) throw error;
     } catch (error: any) {
+      console.error('Google login error:', error);
       toast({
         title: "Login failed",
         description: error.message,
