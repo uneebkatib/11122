@@ -4,13 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { Email } from "@/types/email";
-import { 
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
 
 interface EmailContextType {
   email: string;
@@ -102,6 +95,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const copyEmail = () => {
+    if (!email) return;
+    
     navigator.clipboard.writeText(email);
     toast({
       title: "Copied!",
@@ -109,7 +104,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  // Generate email on component mount
+  // Generate email on component mount if domains are available
   useEffect(() => {
     if (!email && adminDomains?.length) {
       generateRandomEmail();
