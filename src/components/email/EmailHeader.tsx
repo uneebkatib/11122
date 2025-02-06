@@ -16,7 +16,8 @@ export const EmailHeader = () => {
     copyEmail, 
     isLoadingAdminDomains,
     previousEmails,
-    setEmail
+    setEmail,
+    adminDomains
   } = useEmail();
 
   return (
@@ -28,7 +29,7 @@ export const EmailHeader = () => {
             size="icon" 
             className="rounded-full"
             onClick={generateRandomEmail}
-            disabled={isLoadingAdminDomains}
+            disabled={isLoadingAdminDomains || !adminDomains?.length}
           >
             <Plus className="h-5 w-5 text-gray-500" />
           </Button>
@@ -56,7 +57,11 @@ export const EmailHeader = () => {
         </div>
         
         <div className="flex-1 mx-4 text-center font-mono text-lg text-gray-700 truncate">
-          {email || "Generating email..."}
+          {isLoadingAdminDomains ? (
+            "Loading..."
+          ) : !adminDomains?.length ? (
+            "No domains available"
+          ) : email || "Generating email..."}
         </div>
 
         <Button 

@@ -48,6 +48,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       return data || [];
     },
     retry: 3,
+    initialData: [], // Provide initial data to prevent undefined state
+    refetchOnMount: true,
   });
 
   // Query emails with auto-refresh
@@ -79,7 +81,9 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const generateRandomEmail = () => {
-    if (!adminDomains?.length) {
+    const domains = adminDomains || [];
+    if (!domains.length) {
+      console.error('No domains available');
       toast({
         title: "Error",
         description: "No domains available. Please try again later.",
@@ -89,7 +93,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     }
     
     const random = Math.random().toString(36).substring(2, 10);
-    const randomDomain = adminDomains[Math.floor(Math.random() * adminDomains.length)];
+    const randomDomain = domains[Math.floor(Math.random() * domains.length)];
     const newEmail = `${random}@${randomDomain.domain}`;
     
     // Add current email to previous emails if it exists
@@ -115,9 +119,10 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     });
   };
 
-  // Generate email on component mount if domains are available
+  // Generate email immediately if domains are available and no email exists
   useEffect(() => {
-    if (!email && adminDomains?.length) {
+    if (!email && adminDomains && adminDomains.length > 0) {
+      console.log('Generating initial email with domains:', adminDomains);
       generateRandomEmail();
     }
   }, [adminDomains]);
@@ -159,7 +164,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         setEmail, 
         generateRandomEmail, 
         copyEmail,
-        adminDomains,
+        adminDomains: adminDomains || [],  // Ensure we never pass undefined
         isLoadingAdminDomains,
         emails,
         isLoadingEmails,
