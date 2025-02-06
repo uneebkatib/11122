@@ -59,7 +59,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
     },
     retry: 3,
     initialData: [], 
-    refetchOnMount: true,
+    refetchInterval: 5000, // Retry every 5 seconds if no domains are found
   });
 
   // Query emails with auto-refresh
