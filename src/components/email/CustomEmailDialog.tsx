@@ -12,6 +12,7 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 
 interface CustomEmailDialogProps {
   open: boolean;
@@ -29,6 +30,7 @@ export const CustomEmailDialog = ({
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const handleCreateEmail = async () => {
     if (!username) {
@@ -42,6 +44,19 @@ export const CustomEmailDialog = ({
 
     setIsLoading(true);
     try {
+      // Check if user is authenticated
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast({
+          title: "Authentication Required",
+          description: "Please sign in to create a custom email",
+          variant: "destructive",
+        });
+        onOpenChange(false);
+        navigate("/login");
+        return;
+      }
+
       const emailAddress = `${username}@${domain}`;
       
       // Save custom email
@@ -50,10 +65,23 @@ export const CustomEmailDialog = ({
         .insert({
           email_address: emailAddress,
           domain: domain,
-          user_id: (await supabase.auth.getUser()).data.user?.id
+          user_id: session.user.id
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error creating custom email:', error);
+        if (error.code === '42501') {
+          toast({
+            title: "Authentication Error",
+            description: "Please sign in to create a custom email",
+            variant: "destructive",
+          });
+          onOpenChange(false);
+          navigate("/login");
+          return;
+        }
+        throw error;
+      }
 
       toast({
         title: "Success",
@@ -63,6 +91,7 @@ export const CustomEmailDialog = ({
       onEmailCreated(emailAddress);
       onOpenChange(false);
     } catch (error: any) {
+      console.error('Error in handleCreateEmail:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to create custom email",
