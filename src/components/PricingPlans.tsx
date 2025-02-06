@@ -7,6 +7,45 @@ import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
+const PRICING_PLANS = [
+  {
+    id: 'free',
+    name: 'Free',
+    price: 0,
+    features: [
+      'Unlimited temporary emails',
+      'Basic inbox features',
+      '24-hour email storage',
+      'No credit card required'
+    ]
+  },
+  {
+    id: 'premium',
+    name: 'Premium',
+    price: 4,
+    features: [
+      'All Free features',
+      'Custom email addresses',
+      'Use your own domain',
+      'Extended email storage',
+      'Priority support'
+    ]
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    price: 10,
+    features: [
+      'All Premium features',
+      'Multiple user accounts',
+      'Advanced analytics',
+      'Custom integration support',
+      'Dedicated account manager',
+      'SLA guarantee'
+    ]
+  }
+];
+
 export const PricingPlans = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -19,21 +58,8 @@ export const PricingPlans = () => {
     }
   });
 
-  const { data: plans } = useQuery({
-    queryKey: ['pricing-plans'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pricing_plans')
-        .select('*')
-        .order('price');
-      
-      if (error) throw error;
-      return data;
-    }
-  });
-
   const handleSubscribe = async (planId: string, price: number) => {
-    if (!session) {
+    if (!session && price > 0) {
       toast({
         title: "Login Required",
         description: "Please login to subscribe to this plan.",
@@ -45,7 +71,7 @@ export const PricingPlans = () => {
     if (price === 0) {
       // Handle free plan subscription
       const { error } = await supabase.from('user_subscriptions').insert({
-        user_id: session.user.id,
+        user_id: session?.user.id,
         plan_id: planId,
         status: 'active',
         current_period_start: new Date().toISOString(),
@@ -82,20 +108,20 @@ export const PricingPlans = () => {
       </p>
 
       <div className="grid md:grid-cols-3 gap-8">
-        {plans?.map((plan) => (
+        {PRICING_PLANS.map((plan) => (
           <Card key={plan.id} className="flex flex-col">
             <CardHeader>
               <CardTitle className="text-2xl">{plan.name}</CardTitle>
               <div className="text-3xl font-bold">
                 ${plan.price}
                 <span className="text-base font-normal text-muted-foreground">
-                  {plan.duration_days > 0 ? `/month` : ''}
+                  {plan.price > 0 ? `/month` : ''}
                 </span>
               </div>
             </CardHeader>
             <CardContent className="flex-1 flex flex-col">
               <ul className="space-y-2 flex-1 mb-6">
-                {(plan.features as string[]).map((feature, index) => (
+                {plan.features.map((feature, index) => (
                   <li key={index} className="flex items-center">
                     <Check className="h-4 w-4 text-primary mr-2" />
                     {feature}

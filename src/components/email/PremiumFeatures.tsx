@@ -1,6 +1,7 @@
 
 import { Crown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -19,10 +20,16 @@ import {
 interface PremiumFeaturesProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onUpgradeClick: () => void;
 }
 
-export const PremiumFeatures = ({ open, onOpenChange, onUpgradeClick }: PremiumFeaturesProps) => {
+export const PremiumFeatures = ({ open, onOpenChange }: PremiumFeaturesProps) => {
+  const navigate = useNavigate();
+
+  const handleUpgradeClick = () => {
+    onOpenChange(false);
+    navigate('/#pricing');
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
@@ -54,9 +61,9 @@ export const PremiumFeatures = ({ open, onOpenChange, onUpgradeClick }: PremiumF
             <CardFooter>
               <Button 
                 className="w-full" 
-                onClick={onUpgradeClick}
+                onClick={handleUpgradeClick}
               >
-                Upgrade Now
+                View Pricing Plans
               </Button>
             </CardFooter>
           </Card>
