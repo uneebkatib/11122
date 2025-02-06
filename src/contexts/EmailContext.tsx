@@ -30,6 +30,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   const { data: adminDomains, isLoading: isLoadingAdminDomains } = useQuery({
     queryKey: ['adminDomains'],
     queryFn: async () => {
+      console.log('Fetching domains');
       const { data, error } = await supabase
         .from('domains')
         .select('*')
@@ -37,7 +38,12 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error('Error fetching domains:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: "Could not fetch domains. Please try again later.",
+          variant: "destructive",
+        });
+        return [];
       }
       return data || [];
     },
@@ -59,7 +65,12 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (error) {
         console.error('Error fetching emails:', error);
-        throw error;
+        toast({
+          title: "Error",
+          description: "Could not fetch emails. Please try again later.",
+          variant: "destructive",
+        });
+        return [];
       }
       return data as Email[];
     },
