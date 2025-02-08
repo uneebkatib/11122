@@ -22,6 +22,7 @@ const Katib = () => {
     setIsLoading(true);
 
     try {
+      // First, authenticate the user
       const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
@@ -33,12 +34,12 @@ const Katib = () => {
         throw new Error("No user returned from authentication");
       }
 
-      // Get the user's profile to check admin status
+      // Then check if user is admin
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         throw profileError;
