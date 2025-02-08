@@ -33,6 +33,19 @@ const Katib = () => {
         throw new Error("Access denied");
       }
 
+      // Get the user's profile to check admin status
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_admin')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      if (!profile?.is_admin) {
+        throw new Error("Access denied. Admin privileges required.");
+      }
+
       setIsAuthenticated(true);
       toast({
         title: "Success",
@@ -50,6 +63,7 @@ const Katib = () => {
     }
   };
 
+  // Only render Admin component if authenticated
   if (isAuthenticated) {
     return <Admin />;
   }
