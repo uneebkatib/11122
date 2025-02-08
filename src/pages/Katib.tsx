@@ -34,19 +34,19 @@ const Katib = () => {
         throw new Error("No user returned from authentication");
       }
 
-      // Then check if user is admin with a simpler query
-      const { data: profile, error: profileError } = await supabase
+      // Then check if user is admin with a more reliable query
+      const { data: adminCheck, error: profileError } = await supabase
         .from('profiles')
         .select('is_admin')
         .eq('id', user.id)
-        .single();
+        .limit(1);
 
       if (profileError) {
         console.error('Profile fetch error:', profileError);
         throw new Error("Could not verify admin status");
       }
 
-      if (!profile?.is_admin) {
+      if (!adminCheck?.[0]?.is_admin) {
         throw new Error("Access denied. Admin privileges required.");
       }
 
