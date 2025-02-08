@@ -12,8 +12,6 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
 
 interface CustomEmailDialogProps {
   open: boolean;
@@ -31,16 +29,6 @@ export const CustomEmailDialog = ({
   const [username, setUsername] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const navigate = useNavigate();
-
-  // Get the current session using React Query
-  const { data: session } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    }
-  });
 
   const handleCreateEmail = async () => {
     if (!username) {
@@ -52,45 +40,40 @@ export const CustomEmailDialog = ({
       return;
     }
 
-    // Check authentication before proceeding
-    if (!session) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to create a custom email",
-        variant: "destructive",
-      });
-      onOpenChange(false);
-      navigate("/login");
-      return;
-    }
-
     setIsLoading(true);
     try {
       const emailAddress = `${username}@${domain}`;
       
-      // Save custom email
+      // Check if email already exists
+      const { data: existingEmail, error: checkError } = await supabase
+        .from('custom_emails')
+        .select('email_address')
+        .eq('email_address', emailAddress)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+
+      if (existingEmail) {
+        toast({
+          title: "Error",
+          description: "This email address is already taken",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Create custom email
       const { error } = await supabase
         .from('custom_emails')
         .insert({
           email_address: emailAddress,
           domain: domain,
-          user_id: session.user.id
+          is_active: true
         });
 
-      if (error) {
-        console.error('Error creating custom email:', error);
-        if (error.code === '42501' || error.message?.includes('authentication')) {
-          toast({
-            title: "Session Expired",
-            description: "Your session has expired. Please sign in again.",
-            variant: "destructive",
-          });
-          onOpenChange(false);
-          navigate("/login");
-          return;
-        }
-        throw error;
-      }
+      if (error) throw error;
 
       toast({
         title: "Success",
@@ -99,11 +82,12 @@ export const CustomEmailDialog = ({
       
       onEmailCreated(emailAddress);
       onOpenChange(false);
+      setUsername("");
     } catch (error: any) {
       console.error('Error in handleCreateEmail:', error);
       toast({
         title: "Error",
-        description: "Failed to create custom email. Please try again.",
+        description: error.message || "Failed to create custom email",
         variant: "destructive",
       });
     } finally {
@@ -127,8 +111,10 @@ export const CustomEmailDialog = ({
               <Input
                 id="username"
                 value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                onChange={(e) => setUsername(e.target.value.toLowerCase())}
                 placeholder="Enter username"
+                pattern="[a-z0-9._-]+"
+                title="Only lowercase letters, numbers, dots, underscores, and hyphens are allowed"
               />
               <span className="text-gray-500">@{domain}</span>
             </div>

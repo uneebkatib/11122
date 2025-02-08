@@ -6,6 +6,7 @@ import { useEmailQueries } from "@/hooks/useEmailQueries";
 import { useEmailOperations } from "@/hooks/useEmailOperations";
 import { EmailContextType } from "@/types/emailContext";
 import { MAX_EMAILS } from "@/constants/emailLimits";
+import { useToast } from "@/hooks/use-toast";
 
 const EmailContext = createContext<EmailContextType | undefined>(undefined);
 
@@ -23,6 +24,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   });
 
   const [showPremiumDialog, setShowPremiumDialog] = useState(false);
+  const { toast } = useToast();
 
   // Get email queries
   const { 
@@ -62,6 +64,11 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
       generateRandomEmail();
     } else if (!email && !isLoadingAdminDomains && adminDomains.length === 0) {
       console.warn('No domains available for initial email generation');
+      toast({
+        title: "Domain Error",
+        description: "No email domains are currently available. Please try again later.",
+        variant: "destructive"
+      });
     }
   }, [adminDomains, email, isLoadingAdminDomains]);
 

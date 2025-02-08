@@ -9,6 +9,9 @@ export interface Email {
   email_type?: 'temporary' | 'custom';
   created_by?: string;
   created_at?: string;
+  retention_period?: string;
+  will_expire_at?: string;
+  is_expired?: boolean;
 }
 
 export interface EmailBoxProps {
