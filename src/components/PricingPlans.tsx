@@ -2,8 +2,6 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Check, Bitcoin } from "lucide-react";
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,11 +12,10 @@ const PRICING_PLANS = [
     price: 4,
     period: 'month',
     features: [
-      'Custom email addresses',
-      'Use your own domain',
       'Extended email storage',
       'Priority support',
-      'Pay with cryptocurrency'
+      'Pay with cryptocurrency',
+      'Premium features access'
     ]
   },
   {
@@ -29,8 +26,6 @@ const PRICING_PLANS = [
     features: [
       'All Premium features',
       'Save $8 annually',
-      'Custom email addresses',
-      'Use your own domain',
       'Extended email storage',
       'Priority support',
       'Pay with cryptocurrency'
@@ -41,17 +36,8 @@ const PRICING_PLANS = [
 export const PricingPlans = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  
-  const { data: session } = useQuery({
-    queryKey: ['session'],
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      return session;
-    }
-  });
 
   const handleSubscribe = async (planId: string) => {
-    // Navigate to settings for crypto payment
     navigate('/settings');
     toast({
       title: "Crypto Payment",
