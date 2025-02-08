@@ -1,9 +1,10 @@
+
 import { Shield, Clock, Trash, Lock, Zap, RefreshCcw } from "lucide-react";
 
 export const Features = () => {
   return (
     <div className="container mx-auto px-4 py-16" id="features">
-      <h2 className="text-3xl font-bold text-center mb-4">Why Choose TempMail</h2>
+      <h2 className="text-3xl font-bold text-center mb-4">Why Choose JempMail</h2>
       <p className="text-center text-muted-foreground mb-12 max-w-2xl mx-auto">
         Protect your privacy with our secure, temporary email service. Perfect for testing, signing up, or avoiding spam.
       </p>

@@ -18,7 +18,7 @@ const Index = () => {
           Secure Temporary Email Service
         </h1>
         <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-          Get instant disposable email addresses. Perfect for testing, signing up, or avoiding spam.
+          Get instant disposable email addresses with JempMail. Perfect for testing, signing up, or avoiding spam.
         </p>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <div className="p-6 bg-white rounded-lg shadow-sm">
