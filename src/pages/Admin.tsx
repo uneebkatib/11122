@@ -17,6 +17,7 @@ const Admin = () => {
         const { data: { user } } = await supabase.auth.getUser();
         
         if (!user) {
+          console.log('No user found, redirecting to login');
           navigate('/katib');
           return;
         }
@@ -27,14 +28,23 @@ const Admin = () => {
           .eq('id', user.id)
           .single();
 
-        if (error || !profile?.is_admin) {
+        if (error) {
+          console.error('Error fetching profile:', error);
+          throw error;
+        }
+
+        if (!profile?.is_admin) {
+          console.log('User is not admin, redirecting');
           toast({
             title: "Access Denied",
             description: "You don't have permission to access the admin panel.",
             variant: "destructive",
           });
           navigate('/katib');
+          return;
         }
+
+        console.log('Admin access verified');
       } catch (error) {
         console.error('Error checking admin status:', error);
         navigate('/katib');

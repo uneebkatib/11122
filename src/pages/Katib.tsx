@@ -22,15 +22,15 @@ const Katib = () => {
     setIsLoading(true);
 
     try {
-      const { data: { user }, error } = await supabase.auth.signInWithPassword({
+      const { data: { user }, error: authError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
+      if (authError) throw authError;
 
-      if (user.email !== 'uneebkatib@gmail.com') {
-        throw new Error("Access denied");
+      if (!user) {
+        throw new Error("No user returned from authentication");
       }
 
       // Get the user's profile to check admin status
@@ -40,7 +40,9 @@ const Katib = () => {
         .eq('id', user.id)
         .single();
 
-      if (profileError) throw profileError;
+      if (profileError) {
+        throw profileError;
+      }
 
       if (!profile?.is_admin) {
         throw new Error("Access denied. Admin privileges required.");
@@ -52,6 +54,7 @@ const Katib = () => {
         description: "Logged in successfully",
       });
     } catch (error: any) {
+      console.error('Login error:', error);
       toast({
         title: "Error",
         description: error.message,
@@ -63,7 +66,6 @@ const Katib = () => {
     }
   };
 
-  // Only render Admin component if authenticated
   if (isAuthenticated) {
     return <Admin />;
   }
