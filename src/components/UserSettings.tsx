@@ -126,7 +126,7 @@ export const UserSettings = () => {
           <CardTitle className="flex items-center gap-2">
             Your Subscription
             {subscription?.status === 'active' && (
-              <Badge variant="success" className="ml-2">Active</Badge>
+              <Badge variant="default" className="ml-2">Active</Badge>
             )}
           </CardTitle>
         </CardHeader>
@@ -186,3 +186,4 @@ export const UserSettings = () => {
     </div>
   );
 };
+
