@@ -34,7 +34,7 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
   } = useEmailQueries(email);
 
   // Get email operations
-  const { generateRandomEmail, copyEmail } = useEmailOperations(
+  const { generateRandomEmail, copyEmail, checkLimits } = useEmailOperations(
     adminDomains,
     email,
     setEmail,
@@ -108,7 +108,8 @@ export const EmailProvider = ({ children }: { children: React.ReactNode }) => {
         isLoadingEmails,
         refetchEmails,
         previousEmails,
-        setPreviousEmails
+        setPreviousEmails,
+        checkLimits
       }}
     >
       {children}
