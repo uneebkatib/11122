@@ -44,6 +44,9 @@ export const CustomEmailDialog = ({
     try {
       const emailAddress = `${username}@${domain}`;
       
+      // Get current session
+      const { data: { session } } = await supabase.auth.getSession();
+      
       // Check if email already exists
       const { data: existingEmail, error: checkError } = await supabase
         .from('custom_emails')
@@ -64,13 +67,15 @@ export const CustomEmailDialog = ({
         return;
       }
 
-      // Create custom email
+      // Create custom email with user_id
       const { error } = await supabase
         .from('custom_emails')
         .insert({
           email_address: emailAddress,
           domain: domain,
-          is_active: true
+          is_active: true,
+          user_id: session?.user?.id || '00000000-0000-0000-0000-000000000000', // Use a default UUID for anonymous users
+          expires_at: new Date(Date.now() + (session?.user ? 24 * 60 * 60 * 1000 : 15 * 60 * 1000)).toISOString() // 24 hours for logged in users, 15 minutes for anonymous
         });
 
       if (error) throw error;
