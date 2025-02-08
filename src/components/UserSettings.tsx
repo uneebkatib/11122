@@ -6,7 +6,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, Timer, Package, Bitcoin } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export const UserSettings = () => {
   const { toast } = useToast();
@@ -44,9 +45,9 @@ export const UserSettings = () => {
     
     setIsProcessing(true);
     try {
-      // Create a new subscription record if one doesn't exist
+      // First, check if there's an existing subscription
       if (!subscription) {
-        // First, get the premium plan ID
+        // Get the premium plan ID
         const { data: premiumPlan } = await supabase
           .from('pricing_plans')
           .select('id')
@@ -64,12 +65,11 @@ export const UserSettings = () => {
             payment_method: 'crypto',
             crypto_payment_address: cryptoAddress,
             current_period_start: new Date().toISOString(),
-            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString() // 30 days from now
+            current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString()
           });
 
         if (createError) throw createError;
       } else {
-        // Update existing subscription
         const { error: updateError } = await supabase
           .from('user_subscriptions')
           .update({
@@ -82,13 +82,12 @@ export const UserSettings = () => {
         if (updateError) throw updateError;
       }
 
-      // Create payment history record
       const { error: paymentError } = await supabase
         .from('payment_history')
         .insert({
           user_id: session.user.id,
           subscription_id: subscription?.id,
-          amount: 29.99, // Assuming this is the premium plan price
+          amount: 4.99,
           currency: 'USD',
           payment_method: 'crypto',
           status: 'pending'
@@ -124,24 +123,35 @@ export const UserSettings = () => {
     <div className="container mx-auto px-4 py-16">
       <Card>
         <CardHeader>
-          <CardTitle>Your Subscription</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            Your Subscription
+            {subscription?.status === 'active' && (
+              <Badge variant="success" className="ml-2">Active</Badge>
+            )}
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            <div>
-              <div className="text-sm text-muted-foreground">Current Plan</div>
-              <div className="font-medium">
-                {subscription?.pricing_plans?.name || 'Free Plan'}
+          <div className="space-y-6">
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">Current Plan</div>
+                <div className="font-medium flex items-center gap-2">
+                  <Package className="h-4 w-4" />
+                  {subscription?.pricing_plans?.name || 'Free Plan'}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <div className="text-sm text-muted-foreground">Status</div>
+                <div className="font-medium flex items-center gap-2">
+                  <Timer className="h-4 w-4" />
+                  {subscription?.status || 'Active'}
+                </div>
               </div>
             </div>
-            <div>
-              <div className="text-sm text-muted-foreground">Status</div>
-              <div className="font-medium">
-                {subscription?.status || 'Active'}
-              </div>
-            </div>
+
             {subscription?.current_period_end && (
-              <div>
+              <div className="pt-4 border-t">
                 <div className="text-sm text-muted-foreground">Next billing date</div>
                 <div className="font-medium">
                   {new Date(subscription.current_period_end).toLocaleDateString()}
@@ -150,8 +160,9 @@ export const UserSettings = () => {
             )}
 
             {!subscription && (
-              <div className="space-y-4">
-                <div className="text-sm text-muted-foreground">
+              <div className="space-y-4 pt-4 border-t">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Bitcoin className="h-4 w-4" />
                   Upgrade to Premium using Cryptocurrency
                 </div>
                 <Input

@@ -1,7 +1,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Check } from "lucide-react";
+import { Check, Bitcoin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
@@ -13,9 +13,9 @@ const PRICING_PLANS = [
     name: 'Free',
     price: 0,
     features: [
-      'Unlimited temporary emails',
+      '15-minute email retention (anonymous)',
+      '24-hour email retention (logged in)',
       'Basic inbox features',
-      '24-hour email storage',
       'No credit card required'
     ]
   },
@@ -28,7 +28,8 @@ const PRICING_PLANS = [
       'Custom email addresses',
       'Use your own domain',
       'Extended email storage',
-      'Priority support'
+      'Priority support',
+      'Pay with cryptocurrency'
     ]
   },
   {
@@ -92,10 +93,11 @@ export const PricingPlans = () => {
         description: "You've been successfully subscribed to the free plan!",
       });
     } else {
-      // Navigate to payment gateway for paid plans
+      // Navigate to settings for crypto payment
+      navigate('/settings');
       toast({
-        title: "Coming Soon",
-        description: "Payment gateway integration is coming soon!",
+        title: "Crypto Payment",
+        description: "You'll be redirected to complete your payment using cryptocurrency.",
       });
     }
   };
@@ -132,7 +134,12 @@ export const PricingPlans = () => {
                 className="w-full"
                 onClick={() => handleSubscribe(plan.id, plan.price)}
               >
-                {plan.price === 0 ? 'Get Started' : 'Subscribe Now'}
+                {plan.price === 0 ? 'Get Started' : (
+                  <span className="flex items-center gap-2">
+                    <Bitcoin className="h-4 w-4" />
+                    Subscribe with Crypto
+                  </span>
+                )}
               </Button>
             </CardContent>
           </Card>
