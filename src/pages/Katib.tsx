@@ -11,7 +11,7 @@ const Katib = () => {
     const checkAdmin = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       
-      if (!user || user.email !== 'admin@jempmail.com') {
+      if (!user || user.email !== 'uneebkatib@gmail.com') {
         navigate('/');
         return;
       }
