@@ -6,7 +6,6 @@ import ThirtyMinuteMail from "./pages/ThirtyMinuteMail";
 import Admin from "./pages/Admin";
 import Katib from "./pages/Katib";
 import NotFound from "./pages/NotFound";
-import Settings from "./pages/Settings";
 
 const App = () => (
   <div className="min-h-screen">
@@ -16,7 +15,6 @@ const App = () => (
       <Route path="/30minutemail" element={<ThirtyMinuteMail />} />
       <Route path="/admin" element={<NotFound />} />
       <Route path="/katib" element={<Katib />} />
-      <Route path="/settings" element={<Settings />} />
       <Route path="*" element={<NotFound />} />
     </Routes>
   </div>
