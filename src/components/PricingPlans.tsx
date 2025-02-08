@@ -9,22 +9,11 @@ import { useToast } from "@/hooks/use-toast";
 
 const PRICING_PLANS = [
   {
-    id: 'free',
-    name: 'Free',
-    price: 0,
-    features: [
-      '15-minute email retention (anonymous)',
-      '24-hour email retention (logged in)',
-      'Basic inbox features',
-      'No credit card required'
-    ]
-  },
-  {
-    id: 'premium',
-    name: 'Premium',
+    id: 'premium-monthly',
+    name: 'Premium Monthly',
     price: 4,
+    period: 'month',
     features: [
-      'All Free features',
       'Custom email addresses',
       'Use your own domain',
       'Extended email storage',
@@ -33,16 +22,18 @@ const PRICING_PLANS = [
     ]
   },
   {
-    id: 'enterprise',
-    name: 'Enterprise',
-    price: 10,
+    id: 'premium-annual',
+    name: 'Premium Annual',
+    price: 40,
+    period: 'year',
     features: [
       'All Premium features',
-      'Multiple user accounts',
-      'Advanced analytics',
-      'Custom integration support',
-      'Dedicated account manager',
-      'SLA guarantee'
+      'Save $8 annually',
+      'Custom email addresses',
+      'Use your own domain',
+      'Extended email storage',
+      'Priority support',
+      'Pay with cryptocurrency'
     ]
   }
 ];
@@ -59,57 +50,23 @@ export const PricingPlans = () => {
     }
   });
 
-  const handleSubscribe = async (planId: string, price: number) => {
-    if (!session && price > 0) {
-      toast({
-        title: "Login Required",
-        description: "Please login to subscribe to this plan.",
-      });
-      navigate('/login', { state: { redirectTo: '/#pricing' } });
-      return;
-    }
-
-    if (price === 0) {
-      // Handle free plan subscription
-      const { error } = await supabase.from('user_subscriptions').insert({
-        user_id: session?.user.id,
-        plan_id: planId,
-        status: 'active',
-        current_period_start: new Date().toISOString(),
-        current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: "Failed to subscribe to the free plan. Please try again.",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      toast({
-        title: "Success",
-        description: "You've been successfully subscribed to the free plan!",
-      });
-    } else {
-      // Navigate to settings for crypto payment
-      navigate('/settings');
-      toast({
-        title: "Crypto Payment",
-        description: "You'll be redirected to complete your payment using cryptocurrency.",
-      });
-    }
+  const handleSubscribe = async (planId: string) => {
+    // Navigate to settings for crypto payment
+    navigate('/settings');
+    toast({
+      title: "Crypto Payment",
+      description: "You'll be redirected to complete your payment using cryptocurrency.",
+    });
   };
 
   return (
     <div className="container mx-auto px-4 py-16" id="pricing">
-      <h2 className="text-3xl font-bold text-center mb-4">Simple, Transparent Pricing</h2>
+      <h2 className="text-3xl font-bold text-center mb-4">Premium Plans</h2>
       <p className="text-center text-muted-foreground mb-12">
-        Choose the plan that best fits your needs
+        Choose your preferred billing period
       </p>
 
-      <div className="grid md:grid-cols-3 gap-8">
+      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-8">
         {PRICING_PLANS.map((plan) => (
           <Card key={plan.id} className="flex flex-col">
             <CardHeader>
@@ -117,7 +74,7 @@ export const PricingPlans = () => {
               <div className="text-3xl font-bold">
                 ${plan.price}
                 <span className="text-base font-normal text-muted-foreground">
-                  {plan.price > 0 ? `/month` : ''}
+                  /{plan.period}
                 </span>
               </div>
             </CardHeader>
@@ -132,14 +89,12 @@ export const PricingPlans = () => {
               </ul>
               <Button 
                 className="w-full"
-                onClick={() => handleSubscribe(plan.id, plan.price)}
+                onClick={() => handleSubscribe(plan.id)}
               >
-                {plan.price === 0 ? 'Get Started' : (
-                  <span className="flex items-center gap-2">
-                    <Bitcoin className="h-4 w-4" />
-                    Subscribe with Crypto
-                  </span>
-                )}
+                <span className="flex items-center gap-2">
+                  <Bitcoin className="h-4 w-4" />
+                  Subscribe with Crypto
+                </span>
               </Button>
             </CardContent>
           </Card>
