@@ -519,6 +519,7 @@ export type Database = {
       }
       user_subscriptions: {
         Row: {
+          coinpayments_transaction_id: string | null
           created_at: string
           crypto_payment_address: string | null
           currency: string | null
@@ -530,9 +531,11 @@ export type Database = {
           status: string
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
+          subscription_period: string | null
           user_id: string
         }
         Insert: {
+          coinpayments_transaction_id?: string | null
           created_at?: string
           crypto_payment_address?: string | null
           currency?: string | null
@@ -544,9 +547,11 @@ export type Database = {
           status: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_period?: string | null
           user_id: string
         }
         Update: {
+          coinpayments_transaction_id?: string | null
           created_at?: string
           crypto_payment_address?: string | null
           currency?: string | null
@@ -558,6 +563,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
+          subscription_period?: string | null
           user_id?: string
         }
         Relationships: [
